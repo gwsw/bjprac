@@ -3,19 +3,19 @@
 <html>
 <head>
 <title>Blackjack Practice</title>
+
 <style>
 body {
-    margin-left: 5%;
+ margin-left: 5%;
 }
 .btn {
  font-weight: bold;
  border-radius: 16px;
 }
 </style>
+
 </head>
 <body style="background-color:#10e070" onload="main()">
-<h1><center>Cindy's Blackjack Practice</center></h1>
-<hr>
 
 <table>
 <tr>
@@ -41,20 +41,19 @@ body {
 </tr>
 </table>
 
-<p>&nbsp;</p>
 <p>
  <span id="msg" style="">&nbsp;</span>
 </p>
 
 <table>
 <tr>
- <td style="padding:5px"> <button type="button" class="btn" onclick="click_stand()" id="stand_btn" >Stand</button> </td>
- <td style="padding:5px"> <button type="button" class="btn" onclick="click_hit()" id="hit_btn" >Hit</button> </td>
+ <td style="padding:2px"> <button type="button" class="btn" onclick="click_stand()" id="stand_btn" >Stand</button> </td>
+ <td style="padding:2px"> <button type="button" class="btn" onclick="click_hit()" id="hit_btn" >Hit</button> </td>
 </tr>
 
 <tr>
- <td style="padding:5px"> <button type="button" class="btn" onclick="click_double()" id="double_btn" >Double</button> </td>
- <td style="padding:5px"> <button type="button" class="btn" onclick="click_split()" id="split_btn" >Split</button> </td>
+ <td style="padding:2px"> <button type="button" class="btn" onclick="click_double()" id="double_btn" >Double</button> </td>
+ <td style="padding:2px"> <button type="button" class="btn" onclick="click_split()" id="split_btn" >Split</button> </td>
 </tr>
 
 <tr>
@@ -62,7 +61,7 @@ body {
 </tr>
 
 <tr>
- <td colspan="2" style="padding:5px"> <button type="button" class="btn" onclick="click_new_hand()" id="new_hand_btn">New hand</button> </td>
+ <td colspan="2" style="padding:2px"> <button type="button" class="btn" onclick="click_new_hand()" id="new_hand_btn">New hand</button> </td>
  </td>
 </tr>
 </table>
@@ -72,8 +71,6 @@ body {
 <p>
 <span id="score" style="background-color:#f0f0f0"></span>
 </p>
-
-</center>
 
 <script>
 
@@ -266,29 +263,6 @@ var _move_tbl = [
 ];
 
 // --------------------------------------------------------------------
-class BJValue {
-    constructor(value) {
-        this.value = value;
-        this.soft = (value == 1);
-    }
-    get_hard() {
-        return this.value;
-    }
-    get_soft() {
-        let value = this.value;
-        if (this.soft) value += 10;
-        return value;
-    }
-    is_soft() {
-        return this.soft;
-    }
-    add(bjval) {
-        this.value += val.value;
-        if (bjval.soft) this.soft = true;
-    }
-}; // class BJValue
-
-// --------------------------------------------------------------------
 class Card {
     constructor(rank, suit) {
         this.rank = rank;
@@ -329,7 +303,6 @@ class Deck {
 }; // class Deck
 
 // --------------------------------------------------------------------
-
 class Game {
     constructor() {
         this.deck = new Deck();
@@ -411,36 +384,6 @@ class Game {
             this.deck.add_card(cards.pop());
         }
     }
-    made_wrong_move() {
-        this.wrong_moves++;
-        const m1 = '<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br><span style="background-color:'+config.color_msg+'">&nbsp;The correct move is </span><span style="background-color:'+config.color_msg+';color:';
-        const m2 = '">';
-        const m3 = '.&nbsp;</span>';
-        if (this.correct_move == HIT) {
-            this.msg(m1 + config.color_hit    + m2 + "HIT"    + m3);
-        } else if (this.correct_move == STAND) {
-            this.msg(m1 + config.color_stand  + m2 + "STAND"  + m3);
-        } else if (this.correct_move == DOUBLE) {
-            this.msg(m1 + config.color_double + m2 + "DOUBLE" + m3);
-        } else if (this.correct_move == SPLIT) {
-            this.msg(m1 + config.color_split  + m2 + "SPLIT"  + m3);
-        }
-    }
-    made_correct_move() {
-        this.correct_moves++;
-        let text;
-        let color;
-        if (this.correct_move == HIT) {
-            text = "HIT";    color = config.color_hit;
-        } else if (this.correct_move == STAND) {
-            text = "STAND";  color = config.color_stand;
-        } else if (this.correct_move == DOUBLE) {
-            text = "DOUBLE"; color = config.color_double;
-        } else if (this.correct_move == SPLIT) {
-            text = "SPLIT";  color = config.color_split;
-        }
-        this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="background-color:'+config.color_msg+';color:'+color+'">&nbsp;'+text+'</span><span style="background-color:'+config.color_msg+'"> is correct.&nbsp;</span>');
-    }
     click_stand() {
         this.click_move(STAND);
     }
@@ -454,12 +397,26 @@ class Game {
         this.click_move(SPLIT);
     }
     click_move(move) {
+        const msg = this.move_msg(this.correct_move);
         if (move == this.correct_move) {
-            this.made_correct_move();
+            this.correct_moves++;
+            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="background-color:'+config.color_msg+';color:'+msg.color+'">&nbsp;'+msg.text+'</span><span style="background-color:'+config.color_msg+'"> is correct.&nbsp;</span>');
         } else {
-            this.made_wrong_move();
+            this.wrong_moves++;
+            this.msg('<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br><span style="background-color:'+config.color_msg+'">&nbsp;The correct move is </span><span style="background-color:'+config.color_msg+';color:'+msg.color+'">'+msg.text+'.&nbsp;</span>');
         }
         this.hand_over();
+    }
+    move_msg(move) {
+        if (this.correct_move == HIT) {
+            return { text: "HIT", color: config.color_hit };
+        } else if (this.correct_move == STAND) {
+            return { text: "STAND",  color: config.color_stand };
+        } else if (this.correct_move == DOUBLE) {
+            return { text: "DOUBLE", color: config.color_double };
+        } else if (this.correct_move == SPLIT) {
+            return { text: "SPLIT",  color: config.color_split };
+        }
     }
     set_score() {
         const tot_moves = this.correct_moves + this.wrong_moves;
@@ -508,7 +465,7 @@ function resize() {
     const ch = wh * .16;
     const cw = ch / hfrac;
     const bw = cw * 1.5;
-    const bh = bw * .33;
+    const bh = bw * .30;
     const fh = wh * .03;
     image_size("dealer1", cw, ch);
     image_size("dealer2", cw, ch);
