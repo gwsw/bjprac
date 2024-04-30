@@ -74,195 +74,195 @@ var _game = null;
 var _card_back = "card_back.jpg";
 
 var _card_images = [
-	"ace_of_hearts.png",
-	"2_of_hearts.png",
-	"3_of_hearts.png",
-	"4_of_hearts.png",
-	"5_of_hearts.png",
-	"6_of_hearts.png",
-	"7_of_hearts.png",
-	"8_of_hearts.png",
-	"9_of_hearts.png",
-	"10_of_hearts.png",
-	"jack_of_hearts2.png",
-	"queen_of_hearts2.png",
-	"king_of_hearts2.png",
+    "ace_of_hearts.png",
+    "2_of_hearts.png",
+    "3_of_hearts.png",
+    "4_of_hearts.png",
+    "5_of_hearts.png",
+    "6_of_hearts.png",
+    "7_of_hearts.png",
+    "8_of_hearts.png",
+    "9_of_hearts.png",
+    "10_of_hearts.png",
+    "jack_of_hearts2.png",
+    "queen_of_hearts2.png",
+    "king_of_hearts2.png",
 
-	"ace_of_clubs.png",
-	"2_of_clubs.png",
-	"3_of_clubs.png",
-	"4_of_clubs.png",
-	"5_of_clubs.png",
-	"6_of_clubs.png",
-	"7_of_clubs.png",
-	"8_of_clubs.png",
-	"9_of_clubs.png",
-	"10_of_clubs.png",
-	"jack_of_clubs2.png",
-	"queen_of_clubs2.png",
-	"king_of_clubs2.png",
+    "ace_of_clubs.png",
+    "2_of_clubs.png",
+    "3_of_clubs.png",
+    "4_of_clubs.png",
+    "5_of_clubs.png",
+    "6_of_clubs.png",
+    "7_of_clubs.png",
+    "8_of_clubs.png",
+    "9_of_clubs.png",
+    "10_of_clubs.png",
+    "jack_of_clubs2.png",
+    "queen_of_clubs2.png",
+    "king_of_clubs2.png",
 
-	"ace_of_diamonds.png",
-	"2_of_diamonds.png",
-	"3_of_diamonds.png",
-	"4_of_diamonds.png",
-	"5_of_diamonds.png",
-	"6_of_diamonds.png",
-	"7_of_diamonds.png",
-	"8_of_diamonds.png",
-	"9_of_diamonds.png",
-	"10_of_diamonds.png",
-	"jack_of_diamonds2.png",
-	"queen_of_diamonds2.png",
-	"king_of_diamonds2.png",
+    "ace_of_diamonds.png",
+    "2_of_diamonds.png",
+    "3_of_diamonds.png",
+    "4_of_diamonds.png",
+    "5_of_diamonds.png",
+    "6_of_diamonds.png",
+    "7_of_diamonds.png",
+    "8_of_diamonds.png",
+    "9_of_diamonds.png",
+    "10_of_diamonds.png",
+    "jack_of_diamonds2.png",
+    "queen_of_diamonds2.png",
+    "king_of_diamonds2.png",
 
-	"ace_of_spades.png",
-	"2_of_spades.png",
-	"3_of_spades.png",
-	"4_of_spades.png",
-	"5_of_spades.png",
-	"6_of_spades.png",
-	"7_of_spades.png",
-	"8_of_spades.png",
-	"9_of_spades.png",
-	"10_of_spades.png",
-	"jack_of_spades.png",
-	"queen_of_spades2.png",
-	"king_of_spades2.png",
+    "ace_of_spades.png",
+    "2_of_spades.png",
+    "3_of_spades.png",
+    "4_of_spades.png",
+    "5_of_spades.png",
+    "6_of_spades.png",
+    "7_of_spades.png",
+    "8_of_spades.png",
+    "9_of_spades.png",
+    "10_of_spades.png",
+    "jack_of_spades.png",
+    "queen_of_spades2.png",
+    "king_of_spades2.png",
 ];
 
 // --------------------------------------------------------------------
 class BJValue {
-	constructor(value) {
-		this.value = value;
-		this.soft = (value == 1);
-	}
-	get_hard() {
-		return this.value;
-	}
-	get_soft() {
-		let value = this.value;
-		if (this.soft) value += 10;
-		return value;
-	}
-	is_soft() {
-		return this.soft;
-	}
-	add(bjval) {
-		this.value += val.value;
-		if (bjval.soft) this.soft = true;
-	}
+    constructor(value) {
+        this.value = value;
+        this.soft = (value == 1);
+    }
+    get_hard() {
+        return this.value;
+    }
+    get_soft() {
+        let value = this.value;
+        if (this.soft) value += 10;
+        return value;
+    }
+    is_soft() {
+        return this.soft;
+    }
+    add(bjval) {
+        this.value += val.value;
+        if (bjval.soft) this.soft = true;
+    }
 }; // class BJValue
 
 // --------------------------------------------------------------------
 class Card {
-	constructor(rank, suit) {
-		this.rank = rank;
-		this.suit = suit;
-		this.image = "images/" + _card_images[(suit * 13) + rank];
-	}
-	get_bjvalue() {
-		return new BJValue(this.rank);
-	}
+    constructor(rank, suit) {
+        this.rank = rank;
+        this.suit = suit;
+        this.image = "images/" + _card_images[(suit * 13) + rank];
+    }
+    get_bjvalue() {
+        return new BJValue(this.rank);
+    }
 }; // class Card
 
 // --------------------------------------------------------------------
 class Deck {
-	constructor() {
-		this.cards = [];
-		for (let rank = 0; rank < 13; ++rank) {
-			for (let suit = 0; suit < 4; ++suit) {
-				this.cards.push(new Card(rank, suit));
-			}
-		}
-		this.shuffle();
-	}
-	shuffle() {
-		for (let i = this.cards.length-1; i > 0; --i) {
-			const j = randu(i);
-			const t = this.cards[i];
-			this.cards[i] = this.cards[j];
-			this.cards[j] = t;
-		}
-	}
-	deal() {
-		const dealt = this.cards.splice(0, 1);
-		return dealt[0];
-	}
-	add(card) {
-		this.cards.push(card);
-	}
+    constructor() {
+        this.cards = [];
+        for (let rank = 0; rank < 13; ++rank) {
+            for (let suit = 0; suit < 4; ++suit) {
+                this.cards.push(new Card(rank, suit));
+            }
+        }
+        this.shuffle();
+    }
+    shuffle() {
+        for (let i = this.cards.length-1; i > 0; --i) {
+            const j = randu(i);
+            const t = this.cards[i];
+            this.cards[i] = this.cards[j];
+            this.cards[j] = t;
+        }
+    }
+    deal() {
+        const dealt = this.cards.splice(0, 1);
+        return dealt[0];
+    }
+    add(card) {
+        this.cards.push(card);
+    }
 }; // class Deck
 
 // --------------------------------------------------------------------
 
 class Game {
-	constructor() {
-		this.deck = new Deck();
-		this.dealer_cards = [];
-		this.player_cards = [];
-		this.new_question();
-	}
-	new_question() {
-		this.hand_over();
-		this.deck.shuffle();
-		const dealer_card1 = this.deck.deal();
-		const dealer_card2 = this.deck.deal();
-		const player_card1 = this.deck.deal();
-		const player_card2 = this.deck.deal();
+    constructor() {
+        this.deck = new Deck();
+        this.dealer_cards = [];
+        this.player_cards = [];
+        this.new_question();
+    }
+    new_question() {
+        this.hand_over();
+        this.deck.shuffle();
+        const dealer_card1 = this.deck.deal();
+        const dealer_card2 = this.deck.deal();
+        const player_card1 = this.deck.deal();
+        const player_card2 = this.deck.deal();
 
-		el("dealer1").src = dealer_card1.image;
-		el("dealer2").src = _card_back;
-		el("player1").src = player_card1.image;
-		el("player2").src = player_card2.image;
-		this.enable_answer_btns(true);
-		this.enable_new_game_btn(false);
-		this.msg("Select a move...");
-	}
-	msg(text, bg_color, fg_color) {
-		el("msg").innerHTML = "&nbsp;" + text + "&nbsp;";
-		el("msg").style.color = (fg_color == undefined) ? "" : fg_color;
-		el("msg").style.backgroundColor = (bg_color == undefined) ? "" : bg_color;
-	}
-	hand_over() {
-		this.enable_answer_btns(false);
-		this.collect(this.dealer_cards);
-		this.collect(this.player_cards);
-		this.enable_new_game_btn(true);
-	}
-	enable_answer_btns(enable) {
-		el("hit_btn").disabled = !enable;
-		el("stand_btn").disabled = !enable;
-		el("double_btn").disabled = !enable;
-		el("split_btn").disabled = !enable;
-	}
-	enable_new_game_btn(enable) {
-		el("new_game_btn").disabled = !enable;
-	}
-	collect(cards) {
-		while (cards.length > 0) {
-			this.deck.add(cards.pop());
-		}
-	}
-	click_stand() {
-		this.msg("Correct!", "green", "white");
-		this.hand_over();
-	}
-	click_hit() {
-		this.msg("Correct!", "red", "white");
-		this.hand_over();
-	}
-	click_double() {
-		this.msg("Correct!", "blue");
-		this.hand_over();
-	}
-	click_split() {
-		this.msg("Correct!");
-		this.hand_over();
-	}
-	click_new_game() {
-		this.new_question();
-	}
+        el("dealer1").src = dealer_card1.image;
+        el("dealer2").src = _card_back;
+        el("player1").src = player_card1.image;
+        el("player2").src = player_card2.image;
+        this.enable_answer_btns(true);
+        this.enable_new_game_btn(false);
+        this.msg("Select a move...");
+    }
+    msg(text, bg_color, fg_color) {
+        el("msg").innerHTML = "&nbsp;" + text + "&nbsp;";
+        el("msg").style.color = (fg_color == undefined) ? "" : fg_color;
+        el("msg").style.backgroundColor = (bg_color == undefined) ? "" : bg_color;
+    }
+    hand_over() {
+        this.enable_answer_btns(false);
+        this.collect(this.dealer_cards);
+        this.collect(this.player_cards);
+        this.enable_new_game_btn(true);
+    }
+    enable_answer_btns(enable) {
+        el("hit_btn").disabled = !enable;
+        el("stand_btn").disabled = !enable;
+        el("double_btn").disabled = !enable;
+        el("split_btn").disabled = !enable;
+    }
+    enable_new_game_btn(enable) {
+        el("new_game_btn").disabled = !enable;
+    }
+    collect(cards) {
+        while (cards.length > 0) {
+            this.deck.add(cards.pop());
+        }
+    }
+    click_stand() {
+        this.msg("Correct!", "green", "white");
+        this.hand_over();
+    }
+    click_hit() {
+        this.msg("Correct!", "red", "white");
+        this.hand_over();
+    }
+    click_double() {
+        this.msg("Correct!", "blue");
+        this.hand_over();
+    }
+    click_split() {
+        this.msg("Correct!");
+        this.hand_over();
+    }
+    click_new_game() {
+        this.new_question();
+    }
 }; // class Game
 
 function click_stand() { if (_game != null) { _game.click_stand(); } }
@@ -302,41 +302,41 @@ function randu(n) {
 }
 
 function resize() {
-	const hfrac = 1.452;
+    const hfrac = 1.452;
     const s = 20;
-	const ww = window.innerWidth - s;
-	const wh = window.innerHeight - s;
-	const ch = wh * .20;
-	const cw = ch / hfrac;
-	const bw = cw;
-	const bh = bw * .30;
-	image_size("dealer1", cw, ch);
-	image_size("dealer2", cw, ch);
-	image_size("player1", cw, ch);
-	image_size("player2", cw, ch);
-	button_size("stand_btn", bw, bh);
-	button_size("hit_btn", bw, bh);
-	button_size("double_btn", bw, bh);
-	button_size("split_btn", bw, bh);
-	button_size("new_game_btn", bw, bh);
+    const ww = window.innerWidth - s;
+    const wh = window.innerHeight - s;
+    const ch = wh * .20;
+    const cw = ch / hfrac;
+    const bw = cw;
+    const bh = bw * .30;
+    image_size("dealer1", cw, ch);
+    image_size("dealer2", cw, ch);
+    image_size("player1", cw, ch);
+    image_size("player2", cw, ch);
+    button_size("stand_btn", bw, bh);
+    button_size("hit_btn", bw, bh);
+    button_size("double_btn", bw, bh);
+    button_size("split_btn", bw, bh);
+    button_size("new_game_btn", bw, bh);
 }
 
 function image_size(name, w, h) {
-	const image = el(name);
-	image.width = w;
-	image.height = h;
+    const image = el(name);
+    image.width = w;
+    image.height = h;
 }
 
 function button_size(name, w, h) {
-	const image = el(name);
-	image.style.width = w.toString() + "px";
-	image.style.height = h.toString() + "px";
+    const image = el(name);
+    image.style.width = w.toString() + "px";
+    image.style.height = h.toString() + "px";
 }
 
 function main() {
     munge_config();
-	resize();
-	_game = new Game();
+    resize();
+    _game = new Game();
 }
 
 </script>
