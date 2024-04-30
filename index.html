@@ -9,12 +9,11 @@ body {
 }
 .btn {
  font-weight: bold;
-}
-:disabled {
+ border-radius: 16px;
 }
 </style>
 </head>
-<body onload="main()">
+<body style="background-color:#10e070" onload="main()">
 
 <table>
 <tr>
@@ -40,19 +39,20 @@ body {
 </tr>
 </table>
 
+<p>&nbsp;</p>
 <p>
  <span id="msg" style="">&nbsp;</span>
 </p>
 
 <table>
 <tr>
- <td> <button class="btn" onclick="click_stand()" id="stand_btn" >Stand</button> </td>
- <td> <button class="btn" onclick="click_hit()" id="hit_btn" >Hit</button> </td>
+ <td style="padding:5px"> <button type="button" class="btn" onclick="click_stand()" id="stand_btn" >Stand</button> </td>
+ <td style="padding:5px"> <button type="button" class="btn" onclick="click_hit()" id="hit_btn" >Hit</button> </td>
 </tr>
 
 <tr>
- <td> <button class="btn" onclick="click_double()" id="double_btn" >Double</button> </td>
- <td> <button class="btn" onclick="click_split()" id="split_btn" >Split</button> </td>
+ <td style="padding:5px"> <button type="button" class="btn" onclick="click_double()" id="double_btn" >Double</button> </td>
+ <td style="padding:5px"> <button type="button" class="btn" onclick="click_split()" id="split_btn" >Split</button> </td>
 </tr>
 
 <tr>
@@ -60,14 +60,14 @@ body {
 </tr>
 
 <tr>
- <td colspan="2"> <button class="btn" onclick="click_new_hand()" id="new_hand_btn">New hand</button> </td>
+ <td colspan="2" style="padding:5px"> <button type="button" class="btn" onclick="click_new_hand()" id="new_hand_btn">New hand</button> </td>
  </td>
 </tr>
 </table>
 
 <p>&nbsp;</p>
 <p>
-<span id="score" style=""></span>
+<span id="score" style="background-color:#f0f0f0"></span>
 </p>
 
 </center>
@@ -81,9 +81,10 @@ var config = {
     color_btn_disable_fg  : "#c0c0c0",
     color_btn_disable_bg  : "#e0e0e0",
     color_btn_enable_bg   : "#e0e030",
-    color_correct         : "#00ff00",
+    color_correct         : "#ffffff",
     color_double          : "#0090f0",
     color_hit             : "#009030",
+    color_msg             : "#f0f0f0",
     color_new_hand        : "#000000",
     color_split           : "#b06810",
     color_stand           : "#d00000",
@@ -409,9 +410,9 @@ class Game {
     }
     made_wrong_move() {
         this.wrong_moves++;
-        const m1 = '<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br>The correct move is <span style="color:';
+        const m1 = '<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br><span style="background-color:'+config.color_msg+'">&nbsp;The correct move is </span><span style="background-color:'+config.color_msg+';color:';
         const m2 = '">';
-        const m3 = '</span>.';
+        const m3 = '&nbsp;</span>';
         if (this.correct_move == HIT) {
             this.msg(m1 + config.color_hit    + m2 + "HIT"    + m3);
         } else if (this.correct_move == STAND) {
@@ -435,7 +436,7 @@ class Game {
         } else if (this.correct_move == SPLIT) {
             text = "SPLIT";  color = config.color_split;
         }
-        this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+color+'">'+text+'</span> is correct.');
+        this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="background-color:'+config.color_msg+';color:'+color+'">&nbsp;'+text+'</span><span style="background-color:'+config.color_msg+'"> is correct&nbsp;</span>');
     }
     click_stand() {
         this.click_move(STAND);
@@ -460,7 +461,7 @@ class Game {
     set_score() {
         const tot_moves = this.correct_moves + this.wrong_moves;
         const pct = (tot_moves == 0) ? 0 : Math.floor(100 * this.correct_moves / tot_moves);
-        el("score").innerHTML = pct.toString()+"% : "+this.correct_moves.toString()+" correct, "+this.wrong_moves.toString()+" wrong";
+        el("score").innerHTML = "&nbsp;"+pct.toString()+"% : "+this.correct_moves.toString()+" correct, "+this.wrong_moves.toString()+" wrong&nbsp;";
     }
     click_new_hand() {
         this.new_question();
@@ -501,9 +502,9 @@ function resize() {
     const s = 20;
     const ww = window.innerWidth - s;
     const wh = window.innerHeight - s;
-    const ch = wh * .20;
+    const ch = wh * .16;
     const cw = ch / hfrac;
-    const bw = cw;
+    const bw = cw * 1.5;
     const bh = bw * .33;
     const fh = wh * .04;
     image_size("dealer1", cw, ch);
@@ -537,6 +538,7 @@ function button_size(name, w, h) {
     btn.style.width = Math.floor(w).toString() + "px";
     btn.style.height = Math.floor(h).toString() + "px";
     btn.style.fontSize = Math.floor(h*.75).toString() + "px";
+    btn.style.borderRadius = Math.floor(h*.3) + "px";
     btn.style.border = "2px solid black";
 }
 
