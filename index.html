@@ -324,11 +324,12 @@ class Game {
         this.dealer_cards = [];
         this.player_cards = [];
         this.move_tbl = _move_tbl;
+        this.enable_new_game_btn(true);
         this.new_question();
     }
     new_question() {
-        this.hand_over();
         for (;;) {
+            this.hand_over();
             this.deck.shuffle();
             this.player_cards.push(this.deck.deal());
             this.dealer_cards.push(this.deck.deal());
@@ -342,7 +343,7 @@ class Game {
         el("player1").src = this.player_cards[0].image;
         el("player2").src = this.player_cards[1].image;
         this.enable_answer_btns(true);
-        this.enable_new_game_btn(false);
+        //this.enable_new_game_btn(false);
         this.msg("&nbsp;<br>Select a move...");
     }
     lookup_move() {
@@ -359,7 +360,7 @@ class Game {
         this.enable_answer_btns(false);
         this.collect(this.dealer_cards);
         this.collect(this.player_cards);
-        this.enable_new_game_btn(true);
+        //this.enable_new_game_btn(true);
     }
     can_double() {
         return true;
