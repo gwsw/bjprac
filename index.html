@@ -5,11 +5,9 @@
 <title>Blackjack Practice</title>
 <style>
 .btn {
- background-color: #b0b0d0;
  font-weight: bold;
 }
 :disabled {
- background-color: #ffe0e0;
 }
 </style>
 </head>
@@ -47,13 +45,13 @@
 
 <table>
 <tr>
- <td> <button class="btn" onclick="click_stand()" id="stand_btn" style="color:#d00000">Stand</button> </td>
- <td> <button class="btn" onclick="click_hit()" id="hit_btn" style="color:#008000">Hit</button> </td>
+ <td> <button class="btn" onclick="click_stand()" id="stand_btn" >Stand</button> </td>
+ <td> <button class="btn" onclick="click_hit()" id="hit_btn" >Hit</button> </td>
 </tr>
 
 <tr>
- <td> <button class="btn" onclick="click_double()" id="double_btn" style="color:#0000f0">Double</button> </td>
- <td> <button class="btn" onclick="click_split()" id="split_btn" style="color:#c07328">Split</button> </td>
+ <td> <button class="btn" onclick="click_double()" id="double_btn" >Double</button> </td>
+ <td> <button class="btn" onclick="click_split()" id="split_btn" >Split</button> </td>
 </tr>
 
 <tr>
@@ -74,10 +72,14 @@
 // Globals
 
 var config = {
-    color_double   : "#00f0f0",
-    color_hit      : "#00a040",
-    color_split    : "#cd7f30",
-    color_stand    : "#d00000",
+    color_btn_disable_fg  : "#c0c0c0",
+    color_btn_disable_bg  : "#e0e0e0",
+    color_btn_enable_bg   : "#e0e030",
+    color_double          : "#00f0f0",
+    color_hit             : "#009030",
+    color_new_game        : "#000000",
+    color_split           : "#cd7f30",
+    color_stand           : "#d00000",
 };
 
 var STAND  = 0;
@@ -280,8 +282,8 @@ class Card {
         this.suit = suit;
         this.image = "images/" + _card_images[(suit * 13) + rank];
     }
-    get_bjvalue() {
-        return new BJValue(this.rank);
+    get_value() {
+        return (this.rank < 10) ? this.rank+1 : 10;
     }
 }; // class Card
 
@@ -340,12 +342,14 @@ if (this.correct_move == undefined || this.correct_move == null) console.log("oo
         this.enable_answer_btns(true);
         this.enable_new_game_btn(false);
         this.msg("Select a move...");
+this.msg2("p1="+player_card1.rank.toString()+" p2="+player_card2.rank.toString()+" d="+dealer_card1.rank.toString()+" : "+["STAND","HIT","DOUBLE","SPLIT"][this.correct_move]);
     }
     lookup_move(player_card1, player_card2, dealer_card) {
-        const p1_val = player_card1.get_bjvalue();
-        const p2_val = player_card2.get_bjvalue();
-        const px = (p1_val.get_hard()-1) * 10 + (p2_val.get_hard()-1);
-        const dx = dealer_card.get_bjvalue().get_hard()-1; 
+        const p1 = player_card1.get_value()-1;
+        const p2 = player_card2.get_value()-1;
+        const px = p1*10 + p2;
+        const dx = dealer_card.get_value()-1; 
+console.log("p1="+p1.toString()+" p2="+p2.toString()+" px="+px.toString()+" dx="+dx.toString());
         return this.move_tbl[px][dx];
     }
     msg(text, bg_color, fg_color) {
@@ -373,20 +377,21 @@ if (this.correct_move == undefined || this.correct_move == null) console.log("oo
         this.enable_button("double_btn", enable);
         this.enable_button("split_btn", enable);
     }
+    enable_new_game_btn(enable) {
+        this.enable_button("new_game_btn", enable);
+    }
     enable_button(name, enable) {
         const btn = el(name);
-        const button_color = { 
-            hit_btn   : config.color_hit, 
-            stand_btn : config.color_stand, 
-            double    : config.color_double, 
-            split_btn : config.color_split, 
+        const button_color = {
+            hit_btn        : config.color_hit, 
+            stand_btn      : config.color_stand, 
+            double_btn     : config.color_double, 
+            split_btn      : config.color_split, 
+            new_game_btn   : config.color_new_game,
         };
         btn.disabled = !enable;
-        btn.style.color = enable ? button_color[name] : "#202020";
-        btn.style.backgroundColor = enable ? "#b0b0d0" : "#e0e0e0";
-    }
-    enable_new_game_btn(enable) {
-        el("new_game_btn").disabled = !enable;
+        btn.style.color = enable ? button_color[name] : config.color_btn_disable_fg;
+        btn.style.backgroundColor = enable ? config.color_btn_enable_bg : config.color_btn_disable_bg;
     }
     collect(cards) {
         while (cards.length > 0) {
