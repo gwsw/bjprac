@@ -15,7 +15,7 @@
 
 <table>
 <tr>
- <td colspan="2" style="text-align:center; font-size:30px"> Dealer hand: </td>
+ <td colspan="2" id="dealer_heading" style="text-align:center"> Dealer hand: </td>
 </tr>
 
 <tr>
@@ -28,7 +28,7 @@
 </tr>
 
 <tr>
- <td colspan="2" style="text-align:center; font-size:30px"> Your hand: </td>
+ <td colspan="2" id="player_heading" style="text-align:center"> Your hand: </td>
 </tr>
 
 <tr>
@@ -38,7 +38,7 @@
 </table>
 
 <p>
- <span id="msg" style="font-size:22px">&nbsp;</span>
+ <span id="msg" style="">&nbsp;</span>
 </p>
 
 <table>
@@ -62,8 +62,9 @@
 </tr>
 </table>
 
+<p>&nbsp;</p>
 <p>
-<span id="score" style="font-size:16px"></span>
+<span id="score" style=""></span>
 </p>
 
 </center>
@@ -501,6 +502,7 @@ function resize() {
     const cw = ch / hfrac;
     const bw = cw;
     const bh = bw * .33;
+    const fh = wh * .04;
     image_size("dealer1", cw, ch);
     image_size("dealer2", cw, ch);
     image_size("player1", cw, ch);
@@ -510,6 +512,15 @@ function resize() {
     button_size("double_btn", bw, bh);
     button_size("split_btn", bw, bh);
     button_size("new_hand_btn", bw*2, bh);
+    font_size("dealer_heading", fh);
+    font_size("player_heading", fh);
+    font_size("msg", fh);
+    font_size("score", fh*.7);
+}
+
+function font_size(name, fh) {
+    const text = el(name);
+    text.style.fontSize = Math.floor(fh) + "px";
 }
 
 function image_size(name, w, h) {
@@ -520,8 +531,8 @@ function image_size(name, w, h) {
 
 function button_size(name, w, h) {
     const btn = el(name);
-    btn.style.width = w.toString() + "px";
-    btn.style.height = h.toString() + "px";
+    btn.style.width = Math.floor(w).toString() + "px";
+    btn.style.height = Math.floor(h).toString() + "px";
     btn.style.fontSize = Math.floor(h*.75).toString() + "px";
     btn.style.border = "2px solid black";
 }
