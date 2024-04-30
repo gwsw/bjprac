@@ -334,7 +334,7 @@ class Game {
             this.dealer_cards.push(this.deck.deal());
             this.player_cards.push(this.deck.deal());
             //this.dealer_cards.push(this.deck.deal());
-            this.correct_move = this.lookup_move(this.player_cards[0], this.player_cards[1], this.dealer_cards[0]);
+            this.correct_move = this.lookup_move();
             if (this.correct_move != BJACK) break;
         }
         el("dealer1").src = this.dealer_cards[0].image;
@@ -345,11 +345,11 @@ class Game {
         this.enable_new_game_btn(false);
         this.msg("&nbsp;<br>Select a move...");
     }
-    lookup_move(player_card1, player_card2, dealer_card) {
-        const p1 = player_card1.get_value()-1;
-        const p2 = player_card2.get_value()-1;
+    lookup_move() {
+        const p1 = this.player_cards[0].get_value()-1;
+        const p2 = this.player_cards[1].get_value()-1;
         const px = p1*10 + p2;
-        const dx = dealer_card.get_value()-1; 
+        const dx = this.dealer_cards[0].get_value()-1; 
         return this.move_tbl[px][dx];
     }
     msg(text) {
@@ -361,11 +361,17 @@ class Game {
         this.collect(this.player_cards);
         this.enable_new_game_btn(true);
     }
+    can_double() {
+        return true;
+    }
+    can_split() {
+        return this.player_cards[0].get_value() == this.player_cards[1].get_value();
+    }
     enable_answer_btns(enable) {
         this.enable_button("hit_btn", enable);
         this.enable_button("stand_btn", enable);
-        this.enable_button("double_btn", enable);
-        this.enable_button("split_btn", enable);
+        this.enable_button("double_btn", enable && this.can_double());
+        this.enable_button("split_btn", enable && this.can_split());
     }
     enable_new_game_btn(enable) {
         this.enable_button("new_game_btn", enable);
