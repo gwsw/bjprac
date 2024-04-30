@@ -3,6 +3,15 @@
 <html>
 <head>
 <title>Blackjack Practice</title>
+<style>
+.btn {
+ background-color: #b0b0d0;
+ font-weight: bold;
+}
+:disabled {
+ background-color: #ffe0e0;
+}
+</style>
 </head>
 <body onload="main()">
 
@@ -30,23 +39,21 @@
 </tr>
 </table>
 
-<p>&nbsp;</p>
+<p>
+ <span id="msg" style="font-size:22px">&nbsp;</span>
+ <br>
+ <span id="msg2" style="font-size:22px">&nbsp;</span>
+</p>
 
 <table>
 <tr>
- <td colspan="2">
-  <span id="msg" style="font-size:22px"></span>
- </td>
+ <td> <button class="btn" onclick="click_stand()" id="stand_btn" style="color:#d00000">Stand</button> </td>
+ <td> <button class="btn" onclick="click_hit()" id="hit_btn" style="color:#008000">Hit</button> </td>
 </tr>
 
 <tr>
- <td> <button onclick="click_stand()" id="stand_btn">Stand</button> </td>
- <td> <button onclick="click_hit()" id="hit_btn">Hit</button> </td>
-</tr>
-
-<tr>
- <td> <button onclick="click_double()" id="double_btn">Double</button> </td>
- <td> <button onclick="click_split()" id="split_btn">Split</button> </td>
+ <td> <button class="btn" onclick="click_double()" id="double_btn" style="color:#0000f0">Double</button> </td>
+ <td> <button class="btn" onclick="click_split()" id="split_btn" style="color:#c07328">Split</button> </td>
 </tr>
 
 <tr>
@@ -54,7 +61,7 @@
 </tr>
 
 <tr>
- <td colspan="2"> <button onclick="click_new_game()" id="new_game_btn">New game</button> </td>
+ <td colspan="2"> <button class="btn" onclick="click_new_game()" id="new_game_btn">New game</button> </td>
  </td>
 </tr>
 </table>
@@ -67,7 +74,16 @@
 // Globals
 
 var config = {
+    color_double   : "#00f0f0",
+    color_hit      : "#00a040",
+    color_split    : "#cd7f30",
+    color_stand    : "#d00000",
 };
+
+var STAND  = 0;
+var HIT    = 1;
+var DOUBLE = 2;
+var SPLIT  = 3;
 
 var _game = null;
 
@@ -131,6 +147,109 @@ var _card_images = [
     "king_of_spades2.png",
 ];
 
+var _move_tbl = [
+    /* AA */ [ SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT  ], 
+    /* A2 */ [ HIT,    HIT,    HIT,    HIT,    DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* A3 */ [ HIT,    HIT,    HIT,    HIT,    DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* A4 */ [ HIT,    HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* A5 */ [ HIT,    HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* A6 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* A7 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, STAND,  STAND,  HIT,    HIT    ], 
+    /* A8 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* A9 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* AT */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 2A */ [ HIT,    HIT,    HIT,    HIT,    DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 22 */ [ HIT,    SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  HIT,    HIT,    HIT    ], 
+    /* 23 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 24 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 25 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 26 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 27 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ],
+    /* 28 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ],
+    /* 29 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 2T */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 3A */ [ HIT,    HIT,    HIT,    HIT,    DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 32 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 33 */ [ HIT,    SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  HIT,    HIT,    HIT    ], 
+    /* 34 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 35 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 36 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ],
+    /* 37 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 38 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 39 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 3T */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 4A */ [ HIT,    HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 42 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 43 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 44 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 45 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 46 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 47 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 48 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 49 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 4T */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 5A */ [ HIT,    HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 52 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 53 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 54 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 55 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 56 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 57 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 58 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 59 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 5T */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 6A */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 62 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
+    /* 63 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 64 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 65 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 66 */ [ HIT,    SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 67 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 68 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 69 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 6T */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 7A */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, STAND,  STAND,  HIT,    HIT    ], 
+    /* 72 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 73 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 74 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 75 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 76 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 77 */ [ HIT,    SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  HIT,    HIT,    HIT    ], 
+    /* 78 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 79 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 7T */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 8A */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 82 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 83 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 84 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 85 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 86 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 87 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 88 */ [ SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT  ], 
+    /* 89 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 8T */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 9A */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 92 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
+    /* 93 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 94 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 95 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 96 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 97 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* 98 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 99 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 9T */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* TA */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* T2 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* T3 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* T4 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* T5 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* T6 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
+    /* T7 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* T8 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* T9 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* TT */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+];
+
 // --------------------------------------------------------------------
 class BJValue {
     constructor(value) {
@@ -189,7 +308,7 @@ class Deck {
         const dealt = this.cards.splice(0, 1);
         return dealt[0];
     }
-    add(card) {
+    add_card(card) {
         this.cards.push(card);
     }
 }; // class Deck
@@ -201,6 +320,7 @@ class Game {
         this.deck = new Deck();
         this.dealer_cards = [];
         this.player_cards = [];
+        this.move_tbl = _move_tbl;
         this.new_question();
     }
     new_question() {
@@ -210,6 +330,8 @@ class Game {
         const dealer_card2 = this.deck.deal();
         const player_card1 = this.deck.deal();
         const player_card2 = this.deck.deal();
+        this.correct_move = this.lookup_move(player_card1, player_card2, dealer_card1);
+if (this.correct_move == undefined || this.correct_move == null) console.log("oopsie");
 
         el("dealer1").src = dealer_card1.image;
         el("dealer2").src = _card_back;
@@ -219,10 +341,25 @@ class Game {
         this.enable_new_game_btn(false);
         this.msg("Select a move...");
     }
+    lookup_move(player_card1, player_card2, dealer_card) {
+        const p1_val = player_card1.get_bjvalue();
+        const p2_val = player_card2.get_bjvalue();
+        const px = (p1_val.get_hard()-1) * 10 + (p2_val.get_hard()-1);
+        const dx = dealer_card.get_bjvalue().get_hard()-1; 
+        return this.move_tbl[px][dx];
+    }
     msg(text, bg_color, fg_color) {
-        el("msg").innerHTML = "&nbsp;" + text + "&nbsp;";
-        el("msg").style.color = (fg_color == undefined) ? "" : fg_color;
-        el("msg").style.backgroundColor = (bg_color == undefined) ? "" : bg_color;
+        this.set_msg("msg", text, bg_color, fg_color);
+        el("msg2").innerHTML = "&nbsp;";
+    }
+    msg2(text, bg_color, fg_color) {
+        this.set_msg("msg2", text, bg_color, fg_color);
+    }
+    set_msg(ename, text, bg_color, fg_color) {
+        const msg = el(ename);
+        msg.innerHTML = "&nbsp;" + text + "&nbsp;";
+        msg.style.color = (fg_color == undefined) ? "" : fg_color;
+        msg.style.backgroundColor = (bg_color == undefined) ? "" : bg_color;
     }
     hand_over() {
         this.enable_answer_btns(false);
@@ -231,33 +368,76 @@ class Game {
         this.enable_new_game_btn(true);
     }
     enable_answer_btns(enable) {
-        el("hit_btn").disabled = !enable;
-        el("stand_btn").disabled = !enable;
-        el("double_btn").disabled = !enable;
-        el("split_btn").disabled = !enable;
+        this.enable_button("hit_btn", enable);
+        this.enable_button("stand_btn", enable);
+        this.enable_button("double_btn", enable);
+        this.enable_button("split_btn", enable);
+    }
+    enable_button(name, enable) {
+        const btn = el(name);
+        const button_color = { 
+            hit_btn   : config.color_hit, 
+            stand_btn : config.color_stand, 
+            double    : config.color_double, 
+            split_btn : config.color_split, 
+        };
+        btn.disabled = !enable;
+        btn.style.color = enable ? button_color[name] : "#202020";
+        btn.style.backgroundColor = enable ? "#b0b0d0" : "#e0e0e0";
     }
     enable_new_game_btn(enable) {
         el("new_game_btn").disabled = !enable;
     }
     collect(cards) {
         while (cards.length > 0) {
-            this.deck.add(cards.pop());
+            this.deck.add_card(cards.pop());
         }
     }
+    show_correct_move() {
+        this.msg("Wrong.", "red", "white");
+        if (this.correct_move == HIT) {
+            this.move_msg("HIT", config.color_hit);
+        } else if (this.correct_move == STAND) {
+            this.move_msg("STAND", config.color_stand);
+        } else if (this.correct_move == DOUBLE) {
+            this.move_msg("DOUBLE", config.color_double);
+        } else if (this.correct_move == SPLIT) {
+            this.move_msg("SPLIT", config.color_split);
+        }
+    }
+    move_msg(move_text, color) {
+        this.msg2('Correct move is to <span style="color:' + color + '">' + move_text + '</span>.');
+    }
     click_stand() {
-        this.msg("Correct!", "green", "white");
+        if (this.correct_move == STAND) {
+            this.msg("Correct!", "green", "white");
+        } else {
+            this.show_correct_move();
+        }
         this.hand_over();
     }
     click_hit() {
-        this.msg("Correct!", "red", "white");
+        if (this.correct_move == HIT) {
+            this.msg("Correct!", "green", "white");
+        } else {
+            this.show_correct_move();
+        }
         this.hand_over();
     }
     click_double() {
-        this.msg("Correct!", "blue");
+        if (this.correct_move == DOUBLE) {
+            this.msg("Correct!", "green", "white");
+        } else {
+            this.show_correct_move();
+        }
         this.hand_over();
     }
     click_split() {
-        this.msg("Correct!");
+        if (this.correct_move == SPLIT) {
+            this.msg("Correct!", "green", "white");
+        } else {
+            this.show_correct_move();
+        }
         this.hand_over();
     }
     click_new_game() {
@@ -275,13 +455,6 @@ function click_new_game() { if (_game != null) { _game.click_new_game(); } }
 
 function now() {
     return performance.now();
-}
-
-function munge_config() {
-    for (const [key,value] of Object.entries(config)) {
-        if (key.substr(0,6) == "color_")
-            config[key] = new Color(config[key]);
-    }
 }
 
 function el(name) {
@@ -309,7 +482,7 @@ function resize() {
     const ch = wh * .20;
     const cw = ch / hfrac;
     const bw = cw;
-    const bh = bw * .30;
+    const bh = bw * .33;
     image_size("dealer1", cw, ch);
     image_size("dealer2", cw, ch);
     image_size("player1", cw, ch);
@@ -318,7 +491,7 @@ function resize() {
     button_size("hit_btn", bw, bh);
     button_size("double_btn", bw, bh);
     button_size("split_btn", bw, bh);
-    button_size("new_game_btn", bw, bh);
+    button_size("new_game_btn", bw*2, bh);
 }
 
 function image_size(name, w, h) {
@@ -328,13 +501,14 @@ function image_size(name, w, h) {
 }
 
 function button_size(name, w, h) {
-    const image = el(name);
-    image.style.width = w.toString() + "px";
-    image.style.height = h.toString() + "px";
+    const btn = el(name);
+    btn.style.width = w.toString() + "px";
+    btn.style.height = h.toString() + "px";
+    btn.style.fontSize = Math.floor(h*.75).toString() + "px";
+    btn.style.border = "2px solid black";
 }
 
 function main() {
-    munge_config();
     resize();
     _game = new Game();
 }
