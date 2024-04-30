@@ -2,298 +2,277 @@
 <meta charset="UTF-8">
 <html>
 <head>
-<title>Example Javascript Graphics App</title>
+<title>Blackjack Practice</title>
 </head>
 <body onload="main()">
-<canvas id="canvas" width="1" height="1" style="font-family:Arial"></canvas>
+
+<table>
+<tr>
+ <td colspan="2" style="text-align:center; font-size:30px"> Dealer hand: </td>
+</tr>
+
+<tr>
+ <td> <img id="dealer1"> </td>
+ <td> <img id="dealer2"> </td>
+</tr>
+
+<tr>
+ <td> &nbsp; </td>
+</tr>
+
+<tr>
+ <td colspan="2" style="text-align:center; font-size:30px"> Your hand: </td>
+</tr>
+
+<tr>
+ <td> <img id="player1"> </td>
+ <td> <img id="player2"> </td>
+</tr>
+</table>
+
+<p>&nbsp;</p>
+
+<table>
+<tr>
+ <td colspan="2">
+  <span id="msg" style="font-size:22px"></span>
+ </td>
+</tr>
+
+<tr>
+ <td> <button onclick="click_stand()" id="stand_btn">Stand</button> </td>
+ <td> <button onclick="click_hit()" id="hit_btn">Hit</button> </td>
+</tr>
+
+<tr>
+ <td> <button onclick="click_double()" id="double_btn">Double</button> </td>
+ <td> <button onclick="click_split()" id="split_btn">Split</button> </td>
+</tr>
+
+<tr>
+ <td> &nbsp; </td>
+</tr>
+
+<tr>
+ <td colspan="2"> <button onclick="click_new_game()" id="new_game_btn">New game</button> </td>
+ </td>
+</tr>
+</table>
+
+</center>
+
 <script>
 
 // --------------------------------------------------------------------
 // Globals
-var _game = null;
 
 var config = {
-    circ_move              : 2,
-    circ_radius            : 40,
-
-    color_bg               : "006000",
-    color_circ             : "80e0FF",
 };
 
-// --------------------------------------------------------------------
-class Color {
-    constructor(hex) {
-        this.hex_str = hex;
-    }
-    hex() {
-        return this.hex_str;
-    }
-    jstring() {
-        return "#" + this.hex_str;
-    }
-    get_comp(comp) {
-        return parseInt(this.hex_str.substr(comp*2, 2), 16);
-    }
-    darker(mult) {
-        return new Color(hex2(this.get_comp(0)*mult) + hex2(this.get_comp(1)*mult) + hex2(this.get_comp(2)*mult));
-    }
-    opposite() {
-        return new Color(hex2(255-this.get_comp(0)) + hex2(255-this.get_comp(1)) + hex2(255-this.get_comp(2)));
-    }
-    contrast() {
-        const bright = this.get_comp(0) + this.get_comp(1) + this.get_comp(2);
-        return new Color((bright > (3*128)) ? "000000" : "ffffff");
-    }
-};
+var _game = null;
+
+var _card_back = "card_back.jpg";
+
+var _card_images = [
+	"ace_of_hearts.png",
+	"2_of_hearts.png",
+	"3_of_hearts.png",
+	"4_of_hearts.png",
+	"5_of_hearts.png",
+	"6_of_hearts.png",
+	"7_of_hearts.png",
+	"8_of_hearts.png",
+	"9_of_hearts.png",
+	"10_of_hearts.png",
+	"jack_of_hearts2.png",
+	"queen_of_hearts2.png",
+	"king_of_hearts2.png",
+
+	"ace_of_clubs.png",
+	"2_of_clubs.png",
+	"3_of_clubs.png",
+	"4_of_clubs.png",
+	"5_of_clubs.png",
+	"6_of_clubs.png",
+	"7_of_clubs.png",
+	"8_of_clubs.png",
+	"9_of_clubs.png",
+	"10_of_clubs.png",
+	"jack_of_clubs2.png",
+	"queen_of_clubs2.png",
+	"king_of_clubs2.png",
+
+	"ace_of_diamonds.png",
+	"2_of_diamonds.png",
+	"3_of_diamonds.png",
+	"4_of_diamonds.png",
+	"5_of_diamonds.png",
+	"6_of_diamonds.png",
+	"7_of_diamonds.png",
+	"8_of_diamonds.png",
+	"9_of_diamonds.png",
+	"10_of_diamonds.png",
+	"jack_of_diamonds2.png",
+	"queen_of_diamonds2.png",
+	"king_of_diamonds2.png",
+
+	"ace_of_spades.png",
+	"2_of_spades.png",
+	"3_of_spades.png",
+	"4_of_spades.png",
+	"5_of_spades.png",
+	"6_of_spades.png",
+	"7_of_spades.png",
+	"8_of_spades.png",
+	"9_of_spades.png",
+	"10_of_spades.png",
+	"jack_of_spades.png",
+	"queen_of_spades2.png",
+	"king_of_spades2.png",
+];
 
 // --------------------------------------------------------------------
-class Point {
-    constructor(x,y) {
-        this.x = x;
-        this.y = y;
-    }
-    rotate(angle) {
-        let pol = this.to_polar();
-        pol.theta += angle;
-        return Point.to_cart(pol);
-    }
-    to_polar() {
-        return {
-            rho: Math.sqrt(this.x * this.x + this.y * this.y),
-            theta: Math.atan2(this.y, this.x) };
-    }
-    static to_cart(pol) {
-        return new Point(
-            pol.rho * Math.cos(pol.theta),
-            pol.rho * Math.sin(pol.theta));
-    }
-};
+class BJValue {
+	constructor(value) {
+		this.value = value;
+		this.soft = (value == 1);
+	}
+	get_hard() {
+		return this.value;
+	}
+	get_soft() {
+		let value = this.value;
+		if (this.soft) value += 10;
+		return value;
+	}
+	is_soft() {
+		return this.soft;
+	}
+	add(bjval) {
+		this.value += val.value;
+		if (bjval.soft) this.soft = true;
+	}
+}; // class BJValue
 
 // --------------------------------------------------------------------
-class Graphics {
-    constructor(ctx, font_size) {
-        this.ctx = ctx;
-        ctx.font = Math.floor(font_size).toString()+"px sans-serif";
-        this.font_height = font_size;
-    }
-    clear(color) {
-        const canvas = this.ctx.canvas;
-        const w = canvas.width;
-        const h = canvas.height;
-        this.ctx.clearRect(0, 0, w, h);
-        this.draw_rect(0, 0, w, h, color);
-    }
-    draw_rect(x, y, w, h, color) {
-        if (color != undefined && color != null) this.ctx.fillStyle = color.jstring();
-        this.ctx.fillRect(x, y, w, h);
-    }
-    draw_centered_rect(cx, cy, w, h, color) {
-        this.draw_rect(cx - w/2, cy - h/2, w, h, color);
-    }
-    draw_outline(x, y, w, h, xb, yb, color) {
-        this.draw_rect(x,      y,       w-xb,   yb,   color);
-        this.draw_rect(x+w-xb, y,       xb,     h-yb, color);
-        this.draw_rect(x+xb,   y+h-yb,  w-xb,   yb,   color);
-        this.draw_rect(x,      y+yb,    xb,     h-yb, color);
-    }
-    draw_centered_outline(cx, cy, w, h, xb, yb, color) {
-        this.draw_outline(cx - w/2, cy - h/2, w, h, xb, yb, color);
-    }
-    draw_outlined_rect(x, y, w, h, xb, yb, bg_color, border_color) {
-        this.draw_rect(x+xb, y+yb, w-2*xb, h-2*yb, bg_color);
-        this.draw_outline(x, y, w, h, xb, yb, border_color);
-    }
-    // dir in radians
-    draw_poly(pts, x, y, dir, scale, stroke, fill) {
-        this.ctx.beginPath();
-        let pt0 = pts[0].rotate(dir);
-        this.ctx.moveTo(x+pt0.x*scale, y+pt0.y*scale);
-        for (let i = 1; i < pts.length; ++i) {
-            const pt = pts[i].rotate(dir);
-            this.ctx.lineTo(x+pt.x*scale, y+pt.y*scale);
-        }
-        this.ctx.lineTo(x+pt0.x*scale, y+pt0.y*scale); // close polygon
-        if (stroke != null) {
-            this.ctx.strokeStyle = stroke.jstring();
-            this.ctx.stroke();
-        }
-        if (fill != null) {
-            this.ctx.fillStyle = fill.jstring();
-            this.ctx.fill();
-        }
-    }
-    draw_circle(x, y, r, color) {
-        this.ctx.beginPath();
-        this.ctx.fillStyle = color.jstring();
-        this.ctx.arc(x, y, r, 0, 2*Math.PI);
-        this.ctx.fill();
-    }
-    draw_text(x, y, text, color) {
-        this.ctx.fillStyle = color.jstring();
-        this.ctx.fillText(text, x, y+this.font_height);
-    }
-    measure_text(text) {
-        let max_width = 0;
-        let num_lines = 0;
-        for (let line of text.split("\n")) {
-            const text_size = this.ctx.measureText(line);
-            if (text_size.width > max_width) max_width = text_size.width;
-            ++num_lines;
-        }
-        return { width: max_width, height: this.font_height * num_lines };
-    }
-    draw_centered_text(x, y, w, text, color) {
-        const text_size = this.measure_text(text);
-        const nx = x + (w - text_size.width) / 2;
-        if (nx > x) x = nx;
-        this.draw_text(x, y, text, color);
-        return text_size;
-    }
-    static end_word(text, p) {
-        for (; p < text.length; ++p) {
-            if (text.substr(p,1) != " ") break;
-        }
-        for (; p < text.length; ++p) {
-            if (text.substr(p,1) == " " || text.substr(p,1) == "\n") break;
-        }
-        return p;
-    }
-    split_text(text, width) {
-        let lines = [];
-        let line = 0;
-        for (;;) {
-            // Skip spaces.
-            while (text.substr(line,1) == " ")
-                ++line;
-            let end_line = line;
-            // Output line starts here; step thru words.
-            for (;;) {
-                if (end_line >= text.length) {
-                    if (end_line > line) lines.push(text.substr(line, end_line-line));
-                    return lines;
-                }
-                const newline = (text.substr(end_line,1) == "\n");
-                let e = -1;
-                if (!newline) e = Graphics.end_word(text, end_line);
-                if (newline || this.measure_text(text.substr(line, e-line)).width >= width) {
-                    if (end_line == line && !newline) { // we must break a word
-                        while (e > line && this.measure_text(text.substr(line, e-line)).width >= width)
-                            e = e - 1;
-                        end_line = e;
-                    }
-                    lines.push(text.substr(line, end_line-line));
-                    line = end_line;
-                    if (newline) ++line;
-                    break;
-                }
-                end_line = e;
-            }
-        }
-    }
-    draw_paragraph(msg, x, y, w, color, center = false, list_char = "") {
-        const lines = this.split_text(msg, w);
-        const line_h = this.font_height;
-        const list_indent = (list_char.length == 0) ? 0 : this.measure_text(list_char).width;
-        for (let i = 0; i < lines.length; ++i) {
-            let line = lines[i];
-            let tx = x;
-            let center_line = center;
-            if (line.substr(0,1) == "\t") {
-                center_line = true;
-                line = line.substr(1);
-            }
-            if (center_line) {
-                const tw = this.measure_text(line).width;
-                tx += Math.floor((w - tw) / 2);
-            }
-            if (list_char.length > 0 && line.substr(0,list_char.length) != list_char)
-                tx += list_indent;
-            if (color != null) this.draw_text(tx, y, line, color);
-            y += line_h;
-        }
-        return { w: w, h: lines.length * line_h };
-    }
-    draw_vcentered_paragraph(msg, x, y, w, h, color, center = false, list_char = "") {
-        const msg_size = this.measure_text(msg);
-        y += (h - msg_size.height) / 2;
-        return this.draw_paragraph(msg, x, y, w, color, center, list_char);
-    }
-}; // class Graphics
+class Card {
+	constructor(rank, suit) {
+		this.rank = rank;
+		this.suit = suit;
+		this.image = "images/" + _card_images[(suit * 13) + rank];
+	}
+	get_bjvalue() {
+		return new BJValue(this.rank);
+	}
+}; // class Card
 
 // --------------------------------------------------------------------
+class Deck {
+	constructor() {
+		this.cards = [];
+		for (let rank = 0; rank < 13; ++rank) {
+			for (let suit = 0; suit < 4; ++suit) {
+				this.cards.push(new Card(rank, suit));
+			}
+		}
+		this.shuffle();
+	}
+	shuffle() {
+		for (let i = this.cards.length-1; i > 0; --i) {
+			const j = randu(i);
+			const t = this.cards[i];
+			this.cards[i] = this.cards[j];
+			this.cards[j] = t;
+		}
+	}
+	deal() {
+		const dealt = this.cards.splice(0, 1);
+		return dealt[0];
+	}
+	add(card) {
+		this.cards.push(card);
+	}
+}; // class Deck
+
+// --------------------------------------------------------------------
+
 class Game {
-    constructor(gfx) {
-        this.gfx = gfx;
-        const canvas = gfx.ctx.canvas;
-        const cw = canvas.width;
-        const ch = canvas.height;
-        this.circ_x = cw/2;
-        this.circ_y = ch/2;
-        this.playing = true;
-    }
-    run() {
-        if (!this.playing) return;
-        //const time = now();
-        this.draw();
-    }
-    draw() {
-        this.gfx.clear(config.color_bg);
-        this.gfx.draw_circle(this.circ_x, this.circ_y, config.circ_radius, config.color_circ);
-    }
-    static _event_keydown(e) {
-        if (_game != null) _game.event_keystroke(e.key, true);
-    }
-    static _event_keyup(e) {
-        if (_game != null) _game.event_keystroke(e.key, false);
-    }
-    static _event_mousedown(e) {
-        if (_game != null) _game.event_mouse(Game.MOUSE_DOWN, e.offsetX, e.offsetY);
-    }
-    static _event_mouseup(e) {
-        if (_game != null) _game.event_mouse(Game.MOUSE_UP, e.offsetX, e.offsetY);
-    }
-    static _event_mousemove(e) {
-        if (_game != null) _game.event_mouse(Game.MOUSE_MOVE, e.offsetX, e.offsetY);
-    }
-    event_keystroke(key, down) {
-        if (!down) return;
-        switch (key) {
-        case 'ArrowDown':
-            this.circ_y += config.circ_move;
-            break;
-        case 'ArrowUp':
-            this.circ_y -= config.circ_move;
-            break;
-        case 'ArrowRight':
-            this.circ_x += config.circ_move;
-            break;
-        case 'ArrowLeft':
-            this.circ_x -= config.circ_move;
-            break;
-        case 'G':
-            break;
-        }
-    }
-    event_mouse(event, x, y) {
-        if (event == Game.MOUSE_DOWN) {
-            this.circ_x = x;
-            this.circ_y = y;
-        }
-    }
-    static MOUSE_DOWN = 0;
-    static MOUSE_UP   = 1;
-    static MOUSE_MOVE = 2;
+	constructor() {
+		this.deck = new Deck();
+		this.dealer_cards = [];
+		this.player_cards = [];
+		this.new_question();
+	}
+	new_question() {
+		this.hand_over();
+		this.deck.shuffle();
+		const dealer_card1 = this.deck.deal();
+		const dealer_card2 = this.deck.deal();
+		const player_card1 = this.deck.deal();
+		const player_card2 = this.deck.deal();
+
+		el("dealer1").src = dealer_card1.image;
+		el("dealer2").src = _card_back;
+		el("player1").src = player_card1.image;
+		el("player2").src = player_card2.image;
+		this.enable_answer_btns(true);
+		this.enable_new_game_btn(false);
+		this.msg("Select a move...");
+	}
+	msg(text, text2) {
+		el("msg").innerHTML = text;
+	}
+	hand_over() {
+		this.enable_answer_btns(false);
+		this.collect(this.dealer_cards);
+		this.collect(this.player_cards);
+		this.enable_new_game_btn(true);
+	}
+	enable_answer_btns(enable) {
+		el("hit_btn").disabled = !enable;
+		el("stand_btn").disabled = !enable;
+		el("double_btn").disabled = !enable;
+		el("split_btn").disabled = !enable;
+	}
+	enable_new_game_btn(enable) {
+		el("new_game_btn").disabled = !enable;
+	}
+	collect(cards) {
+		while (cards.length > 0) {
+			this.deck.add(cards.pop());
+		}
+	}
+	click_stand() {
+		this.msg("Correct!");
+		this.hand_over();
+	}
+	click_hit() {
+		this.msg("Correct!");
+		this.hand_over();
+	}
+	click_double() {
+		this.msg("Correct!");
+		this.hand_over();
+	}
+	click_split() {
+		this.msg("Correct!");
+		this.hand_over();
+	}
+	click_new_game() {
+		this.new_question();
+	}
 }; // class Game
+
+function click_stand() { if (_game != null) { _game.click_stand(); } }
+function click_hit() { if (_game != null) { _game.click_hit(); } }
+function click_double() { if (_game != null) { _game.click_double(); } }
+function click_split() { if (_game != null) { _game.click_split(); } }
+function click_new_game() { if (_game != null) { _game.click_new_game(); } }
 
 // --------------------------------------------------------------------
 
 function now() {
     return performance.now();
-}
-
-function run_game() {
-    if (_game != null) _game.run();
-    window.requestAnimationFrame(run_game);
 }
 
 function munge_config() {
@@ -307,9 +286,6 @@ function el(name) {
     return document.getElementById(name);
 }
 
-function padnum(num, len, radix) {
-    return Math.floor(num).toString(radix).padStart(len,"0");
-}
 function hex2(num) { return padnum(num, 2, 16); }
 
 function zmod(x, m) {
@@ -323,30 +299,42 @@ function randu(n) {
     return Math.floor(Math.random() * n);
 }
 
-function canvas_size(name, w, h) {
-    const canvas = el(name);
-    canvas.width = w;
-    canvas.height = h;
-    return canvas;
+function resize() {
+	const hfrac = 1.452;
+    const s = 20;
+	const ww = window.innerWidth - s;
+	const wh = window.innerHeight - s;
+	const ch = wh * .20;
+	const cw = ch / hfrac;
+	const bw = cw;
+	const bh = bw * .30;
+	image_size("dealer1", cw, ch);
+	image_size("dealer2", cw, ch);
+	image_size("player1", cw, ch);
+	image_size("player2", cw, ch);
+	button_size("stand_btn", bw, bh);
+	button_size("hit_btn", bw, bh);
+	button_size("double_btn", bw, bh);
+	button_size("split_btn", bw, bh);
+	button_size("new_game_btn", bw, bh);
 }
 
-function canvas_resize() {
-    const s = 20;
-    return canvas_size("canvas", window.innerWidth - s, window.innerHeight - s);
+function image_size(name, w, h) {
+	const image = el(name);
+	image.width = w;
+	image.height = h;
+}
+
+function button_size(name, w, h) {
+	const image = el(name);
+	image.style.width = w.toString() + "px";
+	image.style.height = h.toString() + "px";
 }
 
 function main() {
     munge_config();
-    const canvas = canvas_resize();
-    const gfx = new Graphics(canvas.getContext("2d"), canvas.height*.028);
-    _game = new Game(gfx);
-    document.addEventListener('keyup', Game._event_keyup);
-    document.addEventListener('keydown', Game._event_keydown);
-    document.addEventListener('mousedown', Game._event_mousedown);
-    document.addEventListener('mouseup', Game._event_mouseup);
-    document.addEventListener('mousemove', Game._event_mousemove);
-    window.addEventListener('resize', canvas_resize, false);
-    run_game();
+	resize();
+	_game = new Game();
 }
 
 </script>
