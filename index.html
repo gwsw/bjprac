@@ -57,10 +57,14 @@
 </tr>
 
 <tr>
- <td colspan="2"> <button class="btn" onclick="click_new_game()" id="new_game_btn">New game</button> </td>
+ <td colspan="2"> <button class="btn" onclick="click_new_hand()" id="new_hand_btn">New hand</button> </td>
  </td>
 </tr>
 </table>
+
+<p>
+<span id="score" style="font-size:10px"></span>
+</p>
 
 </center>
 
@@ -76,7 +80,7 @@ var config = {
     color_correct         : "#00ff00",
     color_double          : "#0090f0",
     color_hit             : "#009030",
-    color_new_game        : "#000000",
+    color_new_hand        : "#000000",
     color_split           : "#b06810",
     color_stand           : "#d00000",
     color_wrong           : "#ff0000",
@@ -239,7 +243,7 @@ var _move_tbl = [
     /* 96 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
     /* 97 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
     /* 98 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
-    /* 99 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* 99 */ [ STAND,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  STAND  ], 
     /* 9T */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
     /* TA */ [ BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK  ], 
     /* T2 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
@@ -324,7 +328,7 @@ class Game {
         this.dealer_cards = [];
         this.player_cards = [];
         this.move_tbl = _move_tbl;
-        this.enable_new_game_btn(true);
+        this.enable_new_hand_btn(true);
         this.new_question();
     }
     new_question() {
@@ -343,7 +347,7 @@ class Game {
         el("player1").src = this.player_cards[0].image;
         el("player2").src = this.player_cards[1].image;
         this.enable_answer_btns(true);
-        //this.enable_new_game_btn(false);
+        //this.enable_new_hand_btn(false);
         this.msg("&nbsp;<br>Select a move...");
     }
     lookup_move() {
@@ -360,7 +364,7 @@ class Game {
         this.enable_answer_btns(false);
         this.collect(this.dealer_cards);
         this.collect(this.player_cards);
-        //this.enable_new_game_btn(true);
+        //this.enable_new_hand_btn(true);
     }
     can_double() {
         return true;
@@ -374,8 +378,8 @@ class Game {
         this.enable_button("double_btn", enable && this.can_double());
         this.enable_button("split_btn", enable && this.can_split());
     }
-    enable_new_game_btn(enable) {
-        this.enable_button("new_game_btn", enable);
+    enable_new_hand_btn(enable) {
+        this.enable_button("new_hand_btn", enable);
     }
     enable_button(name, enable) {
         const btn = el(name);
@@ -384,7 +388,7 @@ class Game {
             stand_btn      : config.color_stand, 
             double_btn     : config.color_double, 
             split_btn      : config.color_split, 
-            new_game_btn   : config.color_new_game,
+            new_hand_btn   : config.color_new_hand,
         };
         btn.disabled = !enable;
         btn.style.color = enable ? button_color[name] : config.color_btn_disable_fg;
@@ -395,7 +399,7 @@ class Game {
             this.deck.add_card(cards.pop());
         }
     }
-    wrong_move() {
+    made_wrong_move() {
         const m1 = '<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br>The correct move is <span style="color:';
         const m2 = '">';
         const m3 = '</span>.';
@@ -409,39 +413,41 @@ class Game {
             this.msg(m1 + config.color_split  + m2 + "SPLIT"  + m3);
         }
     }
-    click_stand() {
-        if (this.correct_move == STAND) {
-            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+config.color_stand+'">STAND</span> is correct.');
-        } else {
-            this.wrong_move();
+    made_correct_move() {
+        let text;
+        let color;
+        if (this.correct_move == HIT) {
+            text = "HIT";    color = config.color_hit;
+        } else if (this.correct_move == STAND) {
+            text = "STAND";  color = config.color_stand;
+        } else if (this.correct_move == DOUBLE) {
+            text = "DOUBLE"; color = config.color_double;
+        } else if (this.correct_move == SPLIT) {
+            text = "SPLIT";  color = config.color_split;
         }
-        this.hand_over();
+        this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+color+'">'+text+'</span> is correct.');
+    }
+    click_stand() {
+        this.click_move(STAND);
     }
     click_hit() {
-        if (this.correct_move == HIT) {
-            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+config.color_hit+'">HIT</span> is correct.');
-        } else {
-            this.wrong_move();
-        }
-        this.hand_over();
+        this.click_move(HIT);
     }
     click_double() {
-        if (this.correct_move == DOUBLE) {
-            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+config.color_double+'">DOUBLE</span> is correct.');
-        } else {
-            this.wrong_move();
-        }
-        this.hand_over();
+        this.click_move(DOUBLE);
     }
     click_split() {
-        if (this.correct_move == SPLIT) {
-            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+config.color_split+'">SPLIT</span> is correct.');
+        this.click_move(SPLIT);
+    }
+    click_move(move) {
+        if (move == this.correct_move) {
+            this.made_correct_move();
         } else {
-            this.wrong_move();
+            this.made_wrong_move();
         }
         this.hand_over();
     }
-    click_new_game() {
+    click_new_hand() {
         this.new_question();
     }
 }; // class Game
@@ -450,7 +456,7 @@ function click_stand() { if (_game != null) { _game.click_stand(); } }
 function click_hit() { if (_game != null) { _game.click_hit(); } }
 function click_double() { if (_game != null) { _game.click_double(); } }
 function click_split() { if (_game != null) { _game.click_split(); } }
-function click_new_game() { if (_game != null) { _game.click_new_game(); } }
+function click_new_hand() { if (_game != null) { _game.click_new_hand(); } }
 
 // --------------------------------------------------------------------
 
@@ -492,7 +498,7 @@ function resize() {
     button_size("hit_btn", bw, bh);
     button_size("double_btn", bw, bh);
     button_size("split_btn", bw, bh);
-    button_size("new_game_btn", bw*2, bh);
+    button_size("new_hand_btn", bw*2, bh);
 }
 
 function image_size(name, w, h) {
