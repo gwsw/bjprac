@@ -81,7 +81,7 @@ var config = {
     color_btn_disable_fg  : "#c0c0c0",
     color_btn_disable_bg  : "#e0e0e0",
     color_btn_enable_bg   : "#e0e030",
-    color_correct         : "#ffffff",
+    color_correct         : "#c0ffc0",
     color_double          : "#0090f0",
     color_hit             : "#009030",
     color_msg             : "#f0f0f0",
@@ -412,7 +412,7 @@ class Game {
         this.wrong_moves++;
         const m1 = '<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br><span style="background-color:'+config.color_msg+'">&nbsp;The correct move is </span><span style="background-color:'+config.color_msg+';color:';
         const m2 = '">';
-        const m3 = '&nbsp;</span>';
+        const m3 = '.&nbsp;</span>';
         if (this.correct_move == HIT) {
             this.msg(m1 + config.color_hit    + m2 + "HIT"    + m3);
         } else if (this.correct_move == STAND) {
@@ -436,7 +436,7 @@ class Game {
         } else if (this.correct_move == SPLIT) {
             text = "SPLIT";  color = config.color_split;
         }
-        this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="background-color:'+config.color_msg+';color:'+color+'">&nbsp;'+text+'</span><span style="background-color:'+config.color_msg+'"> is correct&nbsp;</span>');
+        this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="background-color:'+config.color_msg+';color:'+color+'">&nbsp;'+text+'</span><span style="background-color:'+config.color_msg+'"> is correct.&nbsp;</span>');
     }
     click_stand() {
         this.click_move(STAND);
@@ -506,7 +506,7 @@ function resize() {
     const cw = ch / hfrac;
     const bw = cw * 1.5;
     const bh = bw * .33;
-    const fh = wh * .04;
+    const fh = wh * .03;
     image_size("dealer1", cw, ch);
     image_size("dealer2", cw, ch);
     image_size("player1", cw, ch);
