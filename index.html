@@ -358,25 +358,18 @@ class Game {
         return this.player_cards[0].get_value() == this.player_cards[1].get_value();
     }
     enable_answer_btns(enable) {
-        this.enable_button("hit_btn", enable);
-        this.enable_button("stand_btn", enable);
-        this.enable_button("double_btn", enable && this.can_double());
-        this.enable_button("split_btn", enable && this.can_split());
+        this.enable_button("hit_btn", config.color_hit, enable);
+        this.enable_button("stand_btn", config.color_stand, enable);
+        this.enable_button("double_btn", config.color_double, enable && this.can_double());
+        this.enable_button("split_btn", config.color_split, enable && this.can_split());
     }
     enable_new_hand_btn(enable) {
-        this.enable_button("new_hand_btn", enable);
+        this.enable_button("new_hand_btn", config.color_new_hand, enable);
     }
-    enable_button(name, enable) {
+    enable_button(name, color, enable) {
         const btn = el(name);
-        const button_color = {
-            hit_btn        : config.color_hit, 
-            stand_btn      : config.color_stand, 
-            double_btn     : config.color_double, 
-            split_btn      : config.color_split, 
-            new_hand_btn   : config.color_new_hand,
-        };
         btn.disabled = !enable;
-        btn.style.color = enable ? button_color[name] : config.color_btn_disable_fg;
+        btn.style.color = enable ? color : config.color_btn_disable_fg;
         btn.style.backgroundColor = enable ? config.color_btn_enable_bg : config.color_btn_disable_bg;
     }
     collect(cards) {
@@ -504,6 +497,7 @@ function button_size(name, w, h) {
 
 function main() {
     resize();
+    window.addEventListener('resize', resize, false);
     _game = new Game();
 }
 
