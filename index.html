@@ -219,8 +219,10 @@ class Game {
 		this.enable_new_game_btn(false);
 		this.msg("Select a move...");
 	}
-	msg(text, text2) {
-		el("msg").innerHTML = text;
+	msg(text, bg_color, fg_color) {
+		el("msg").innerHTML = "&nbsp;" + text + "&nbsp;";
+		el("msg").style.color = (fg_color == undefined) ? "" : fg_color;
+		el("msg").style.backgroundColor = (bg_color == undefined) ? "" : bg_color;
 	}
 	hand_over() {
 		this.enable_answer_btns(false);
@@ -243,15 +245,15 @@ class Game {
 		}
 	}
 	click_stand() {
-		this.msg("Correct!");
+		this.msg("Correct!", "green", "white");
 		this.hand_over();
 	}
 	click_hit() {
-		this.msg("Correct!");
+		this.msg("Correct!", "red", "white");
 		this.hand_over();
 	}
 	click_double() {
-		this.msg("Correct!");
+		this.msg("Correct!", "blue");
 		this.hand_over();
 	}
 	click_split() {
