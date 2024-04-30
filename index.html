@@ -63,7 +63,7 @@
 </table>
 
 <p>
-<span id="score" style="font-size:10px"></span>
+<span id="score" style="font-size:16px"></span>
 </p>
 
 </center>
@@ -327,9 +327,12 @@ class Game {
         this.deck = new Deck();
         this.dealer_cards = [];
         this.player_cards = [];
+        this.wrong_moves = 0;
+        this.correct_moves = 0;
         this.move_tbl = _move_tbl;
         this.enable_new_hand_btn(true);
         this.new_question();
+        this.set_score();
     }
     new_question() {
         for (;;) {
@@ -365,6 +368,7 @@ class Game {
         this.collect(this.dealer_cards);
         this.collect(this.player_cards);
         //this.enable_new_hand_btn(true);
+        this.set_score();
     }
     can_double() {
         return true;
@@ -400,6 +404,7 @@ class Game {
         }
     }
     made_wrong_move() {
+        this.wrong_moves++;
         const m1 = '<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br>The correct move is <span style="color:';
         const m2 = '">';
         const m3 = '</span>.';
@@ -414,6 +419,7 @@ class Game {
         }
     }
     made_correct_move() {
+        this.correct_moves++;
         let text;
         let color;
         if (this.correct_move == HIT) {
@@ -446,6 +452,11 @@ class Game {
             this.made_wrong_move();
         }
         this.hand_over();
+    }
+    set_score() {
+        const tot_moves = this.correct_moves + this.wrong_moves;
+        const pct = (tot_moves == 0) ? 0 : Math.floor(100 * this.correct_moves / tot_moves);
+        el("score").innerHTML = pct.toString()+"% : "+this.correct_moves.toString()+" correct, "+this.wrong_moves.toString()+" wrong";
     }
     click_new_hand() {
         this.new_question();
