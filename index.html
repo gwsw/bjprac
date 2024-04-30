@@ -39,8 +39,6 @@
 
 <p>
  <span id="msg" style="font-size:22px">&nbsp;</span>
- <br>
- <span id="msg2" style="font-size:22px">&nbsp;</span>
 </p>
 
 <table>
@@ -75,21 +73,24 @@ var config = {
     color_btn_disable_fg  : "#c0c0c0",
     color_btn_disable_bg  : "#e0e0e0",
     color_btn_enable_bg   : "#e0e030",
-    color_double          : "#00f0f0",
+    color_correct         : "#00ff00",
+    color_double          : "#0090f0",
     color_hit             : "#009030",
     color_new_game        : "#000000",
-    color_split           : "#cd7f30",
+    color_split           : "#b06810",
     color_stand           : "#d00000",
+    color_wrong           : "#ff0000",
 };
 
 var STAND  = 0;
 var HIT    = 1;
 var DOUBLE = 2;
 var SPLIT  = 3;
+var BJACK  = 4;
 
 var _game = null;
 
-var _card_back = "card_back.jpg";
+var _card_back = "images/card_back.png";
 
 var _card_images = [
     "ace_of_hearts.png",
@@ -159,7 +160,7 @@ var _move_tbl = [
     /* A7 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, STAND,  STAND,  HIT,    HIT    ], 
     /* A8 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
     /* A9 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
-    /* AT */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* AT */ [ BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK  ], 
     /* 2A */ [ HIT,    HIT,    HIT,    HIT,    DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
     /* 22 */ [ HIT,    SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  SPLIT,  HIT,    HIT,    HIT    ], 
     /* 23 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
@@ -240,7 +241,7 @@ var _move_tbl = [
     /* 98 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
     /* 99 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
     /* 9T */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
-    /* TA */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
+    /* TA */ [ BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK  ], 
     /* T2 */ [ HIT,    HIT,    STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
     /* T3 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
     /* T4 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
@@ -327,43 +328,32 @@ class Game {
     }
     new_question() {
         this.hand_over();
-        this.deck.shuffle();
-        const dealer_card1 = this.deck.deal();
-        const dealer_card2 = this.deck.deal();
-        const player_card1 = this.deck.deal();
-        const player_card2 = this.deck.deal();
-        this.correct_move = this.lookup_move(player_card1, player_card2, dealer_card1);
-if (this.correct_move == undefined || this.correct_move == null) console.log("oopsie");
-
-        el("dealer1").src = dealer_card1.image;
+        for (;;) {
+            this.deck.shuffle();
+            this.player_cards.push(this.deck.deal());
+            this.dealer_cards.push(this.deck.deal());
+            this.player_cards.push(this.deck.deal());
+            //this.dealer_cards.push(this.deck.deal());
+            this.correct_move = this.lookup_move(this.player_cards[0], this.player_cards[1], this.dealer_cards[0]);
+            if (this.correct_move != BJACK) break;
+        }
+        el("dealer1").src = this.dealer_cards[0].image;
         el("dealer2").src = _card_back;
-        el("player1").src = player_card1.image;
-        el("player2").src = player_card2.image;
+        el("player1").src = this.player_cards[0].image;
+        el("player2").src = this.player_cards[1].image;
         this.enable_answer_btns(true);
         this.enable_new_game_btn(false);
-        this.msg("Select a move...");
-this.msg2("p1="+player_card1.rank.toString()+" p2="+player_card2.rank.toString()+" d="+dealer_card1.rank.toString()+" : "+["STAND","HIT","DOUBLE","SPLIT"][this.correct_move]);
+        this.msg("&nbsp;<br>Select a move...");
     }
     lookup_move(player_card1, player_card2, dealer_card) {
         const p1 = player_card1.get_value()-1;
         const p2 = player_card2.get_value()-1;
         const px = p1*10 + p2;
         const dx = dealer_card.get_value()-1; 
-console.log("p1="+p1.toString()+" p2="+p2.toString()+" px="+px.toString()+" dx="+dx.toString());
         return this.move_tbl[px][dx];
     }
-    msg(text, bg_color, fg_color) {
-        this.set_msg("msg", text, bg_color, fg_color);
-        el("msg2").innerHTML = "&nbsp;";
-    }
-    msg2(text, bg_color, fg_color) {
-        this.set_msg("msg2", text, bg_color, fg_color);
-    }
-    set_msg(ename, text, bg_color, fg_color) {
-        const msg = el(ename);
-        msg.innerHTML = "&nbsp;" + text + "&nbsp;";
-        msg.style.color = (fg_color == undefined) ? "" : fg_color;
-        msg.style.backgroundColor = (bg_color == undefined) ? "" : bg_color;
+    msg(text) {
+        el("msg").innerHTML = text;
     }
     hand_over() {
         this.enable_answer_btns(false);
@@ -398,50 +388,49 @@ console.log("p1="+p1.toString()+" p2="+p2.toString()+" px="+px.toString()+" dx="
             this.deck.add_card(cards.pop());
         }
     }
-    show_correct_move() {
-        this.msg("Wrong.", "red", "white");
+    wrong_move() {
+        const m1 = '<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br>The correct move is <span style="color:';
+        const m2 = '">';
+        const m3 = '</span>.';
         if (this.correct_move == HIT) {
-            this.move_msg("HIT", config.color_hit);
+            this.msg(m1 + config.color_hit    + m2 + "HIT"    + m3);
         } else if (this.correct_move == STAND) {
-            this.move_msg("STAND", config.color_stand);
+            this.msg(m1 + config.color_stand  + m2 + "STAND"  + m3);
         } else if (this.correct_move == DOUBLE) {
-            this.move_msg("DOUBLE", config.color_double);
+            this.msg(m1 + config.color_double + m2 + "DOUBLE" + m3);
         } else if (this.correct_move == SPLIT) {
-            this.move_msg("SPLIT", config.color_split);
+            this.msg(m1 + config.color_split  + m2 + "SPLIT"  + m3);
         }
-    }
-    move_msg(move_text, color) {
-        this.msg2('Correct move is to <span style="color:' + color + '">' + move_text + '</span>.');
     }
     click_stand() {
         if (this.correct_move == STAND) {
-            this.msg("Correct!", "green", "white");
+            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+config.color_stand+'">STAND</span> is correct.');
         } else {
-            this.show_correct_move();
+            this.wrong_move();
         }
         this.hand_over();
     }
     click_hit() {
         if (this.correct_move == HIT) {
-            this.msg("Correct!", "green", "white");
+            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+config.color_hit+'">HIT</span> is correct.');
         } else {
-            this.show_correct_move();
+            this.wrong_move();
         }
         this.hand_over();
     }
     click_double() {
         if (this.correct_move == DOUBLE) {
-            this.msg("Correct!", "green", "white");
+            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+config.color_double+'">DOUBLE</span> is correct.');
         } else {
-            this.show_correct_move();
+            this.wrong_move();
         }
         this.hand_over();
     }
     click_split() {
         if (this.correct_move == SPLIT) {
-            this.msg("Correct!", "green", "white");
+            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="color:'+config.color_split+'">SPLIT</span> is correct.');
         } else {
-            this.show_correct_move();
+            this.wrong_move();
         }
         this.hand_over();
     }
