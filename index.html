@@ -6,7 +6,6 @@
 
 <style>
 body {
- margin-left: 5%;
 }
 .btn {
  font-weight: bold;
@@ -17,6 +16,16 @@ body {
 </head>
 <body style="background-color:#10e070" onload="main()">
 
+<table style="width:100%">
+ <tr>
+  <td style="width:25%">
+  <td id="title" style="width:50%; text-align:center"> Cindy's Blackjack Practice </td> 
+  <td id="settings_btn" style="width:25%; text-align:right"> <button type="button" onclick="click_settings()"> Settings </button> </td>
+ </tr>
+</table>
+<hr style="height:2px">
+
+<center>
 <table>
 <tr>
  <td colspan="2" id="dealer_heading" style="text-align:center"> Dealer hand: </td>
@@ -40,11 +49,15 @@ body {
  <td> <img id="player2"> </td>
 </tr>
 </table>
+</center>
 
 <p>
+<center>
  <span id="msg" style="">&nbsp;</span>
-</p>
+</center>
+</p> 
 
+<center>
 <table>
 <tr>
  <td style="padding:2px"> <button type="button" class="btn" onclick="click_stand()" id="stand_btn" >Stand</button> </td>
@@ -56,21 +69,46 @@ body {
  <td style="padding:2px"> <button type="button" class="btn" onclick="click_split()" id="split_btn" >Split</button> </td>
 </tr>
 
-<tr>
- <td> &nbsp; </td>
-</tr>
+<tr id="sp1"> <td> &nbsp; </td> </tr>
 
 <tr>
  <td colspan="2" style="padding:2px"> <button type="button" class="btn" onclick="click_new_hand()" id="new_hand_btn">New hand</button> </td>
  </td>
 </tr>
 </table>
+</center>
 
 <p>&nbsp;</p>
-<hr>
-<p>
+<hr style="height:2px">
+<p style="text-align:right">
 <span id="score" style="background-color:#f0f0f0"></span>
 </p>
+
+<div id="settings" style="position:fixed; display:none; width=100%; margin:10%; height=100%; border:3px solid black; top:0; left:0; right:0; bottom:0; background-color:#80a0f0; z-index:2">
+ <center>
+ <table style="margin:5%">
+  <tr>
+   <td colspan="3"; style="text-align:center; font-weight:bold; text-decoration:underline"> Settings </td>
+  <tr>
+   <td> Practice hard hands </td> <td>&nbsp;</td>
+   <td> <input type="checkbox" id="settings_chk_hard"> </td>
+  </tr>
+  <tr>
+   <td> Practice soft hands </td> <td>&nbsp;</td>
+   <td> <input type="checkbox" id="settings_chk_soft"> </td>
+  </tr>
+  <tr>
+   <td> Practice pairs </td> <td>&nbsp;</td>
+   <td> <input type="checkbox" id="settings_chk_pair"> </td>
+  </tr>
+  <tr style="text-align:center">
+   <td colspan="3">
+    <button type="button" onclick="click_settings()">Done</button>
+   </td>
+  </tr>
+ </table>
+ </center>
+</div>
 
 <script>
 
@@ -96,6 +134,11 @@ var HIT    = 1;
 var DOUBLE = 2;
 var SPLIT  = 3;
 var BJACK  = 4;
+
+var PRAC_HARD = 0;
+var PRAC_SOFT = 1;
+var PRAC_PAIR = 2;
+var NUM_PRACS = 3;
 
 var _game = null;
 
@@ -312,6 +355,7 @@ class Game {
         this.correct_moves = 0;
         this.move_tbl = _move_tbl;
         this.enable_new_hand_btn(true);
+        this.prac = [ true, true, true ];
         this.new_question();
         this.set_score();
     }
@@ -319,10 +363,11 @@ class Game {
         for (;;) {
             this.hand_over();
             this.deck.shuffle();
-            this.player_cards.push(this.deck.deal());
             this.dealer_cards.push(this.deck.deal());
             this.player_cards.push(this.deck.deal());
-            //this.dealer_cards.push(this.deck.deal());
+            if (!this.prac[PRAC_SOFT] && this.player_cards[0].get_value() == 1)
+                continue;
+            this.player_cards.push(this.deal_final());
             this.correct_move = this.lookup_move();
             if (this.correct_move != BJACK) break;
         }
@@ -341,8 +386,31 @@ class Game {
         const dx = this.dealer_cards[0].get_value()-1; 
         return this.move_tbl[px][dx];
     }
+    deal_final() {
+        const pracs = (this.prac[PRAC_HARD] ? 1 : 0) + (this.prac[PRAC_SOFT] ? 1 : 0) + (this.prac[PRAC_PAIR] ? 1 : 0);
+        for (;;) {
+            let rp = randu(pracs);
+            let prac_type;
+            for (prac_type = 0; prac_type < 3; ++prac_type) {
+                if (this.prac[prac_type]) {
+                    if (rp-- == 0) break;
+                }
+            }
+            const dcard = this.player_cards[0];
+            const card = this.deck.deal();
+            const soft = (card.get_value() == 1 || dcard.get_value() == 1);
+            const pair = (card.get_value() == dcard.get_value());
+            if (prac_type == PRAC_HARD && !soft && !pair)
+                return card;
+            if (prac_type == PRAC_SOFT && soft)
+                return card;
+            if (prac_type == PRAC_PAIR && pair && randu(2) == 0)
+                return card;
+            this.deck.add_card(card);
+        }
+    }
     msg(text) {
-        el("msg").innerHTML = text;
+        el("msg").innerHTML = "&nbsp;<br>" + text;
     }
     hand_over() {
         this.enable_answer_btns(false);
@@ -428,6 +496,24 @@ function click_split() { if (_game != null) { _game.click_split(); } }
 function click_new_hand() { if (_game != null) { _game.click_new_hand(); } }
 
 // --------------------------------------------------------------------
+function click_settings() {
+    const settings = el("settings");
+    if (settings.style.display != "none") {
+        _game.prac[PRAC_HARD] = el("settings_chk_hard").checked;
+        _game.prac[PRAC_SOFT] = el("settings_chk_soft").checked;
+        _game.prac[PRAC_PAIR] = el("settings_chk_pair").checked;
+        if (!_game.prac[PRAC_HARD] && !_game.prac[PRAC_SOFT] && !_game.prac[PRAC_PAIR])
+            _game.prac[PRAC_HARD] = true;
+        settings.style.display = "none";
+    } else {
+        el("settings_chk_hard").checked = _game.prac[PRAC_HARD];
+        el("settings_chk_soft").checked = _game.prac[PRAC_SOFT];
+        el("settings_chk_pair").checked = _game.prac[PRAC_PAIR];
+        settings.style.display = "block";
+    }
+}
+
+// --------------------------------------------------------------------
 
 function now() {
     return performance.now();
@@ -471,8 +557,11 @@ function resize() {
     button_size("new_hand_btn", bw*2, bh);
     font_size("dealer_heading", fh);
     font_size("player_heading", fh);
-    font_size("msg", fh);
-    font_size("score", fh*.7);
+    font_size("title", fh*.8);
+    font_size("msg", fh*.8);
+    font_size("score", fh*.6);
+    font_size("sp1", fh*2);
+    font_size("settings", fh);
 }
 
 function font_size(name, fh) {
