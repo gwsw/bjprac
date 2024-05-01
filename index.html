@@ -2,7 +2,7 @@
 <meta charset="UTF-8">
 <html>
 <head>
-<title>Blackjack Practice</title>
+<title>Cindy's Blackjack</title>
 
 <style>
 body {
@@ -19,8 +19,8 @@ body {
 <table style="width:100%">
  <tr>
   <td style="width:25%">
-  <td id="title" style="width:50%; text-align:center"> Cindy's Blackjack Practice </td> 
-  <td id="settings_btn" style="width:25%; text-align:right"> <button type="button" onclick="click_settings()"> Settings </button> </td>
+  <td id="title" style="width:50%; text-align:center"> &nbsp;<br> Cindy's Blackjack </td> 
+  <td style="width:25%; text-align:right"> <button type="button" id="settings_btn" onclick="click_settings()"> Settings </button> </td>
  </tr>
 </table>
 <hr style="height:2px">
@@ -60,19 +60,19 @@ body {
 <center>
 <table>
 <tr>
- <td style="padding:2px"> <button type="button" class="btn" onclick="click_stand()" id="stand_btn" >Stand</button> </td>
- <td style="padding:2px"> <button type="button" class="btn" onclick="click_hit()" id="hit_btn" >Hit</button> </td>
+ <td style="padding:8px"> <button type="button" class="btn" onclick="click_stand()" id="stand_btn" >Stand</button> </td>
+ <td style="padding:8px"> <button type="button" class="btn" onclick="click_hit()" id="hit_btn" >Hit</button> </td>
 </tr>
 
 <tr>
- <td style="padding:2px"> <button type="button" class="btn" onclick="click_double()" id="double_btn" >Double</button> </td>
- <td style="padding:2px"> <button type="button" class="btn" onclick="click_split()" id="split_btn" >Split</button> </td>
+ <td style="padding:8px"> <button type="button" class="btn" onclick="click_double()" id="double_btn" >Double</button> </td>
+ <td style="padding:8px"> <button type="button" class="btn" onclick="click_split()" id="split_btn" >Split</button> </td>
 </tr>
 
 <tr id="sp1"> <td> &nbsp; </td> </tr>
 
 <tr>
- <td colspan="2" style="padding:2px"> <button type="button" class="btn" onclick="click_new_hand()" id="new_hand_btn">New hand</button> </td>
+ <td colspan="2" style="padding:8px"> <button type="button" class="btn" onclick="click_new_hand()" id="new_hand_btn">New hand</button> </td>
  </td>
 </tr>
 </table>
@@ -84,26 +84,26 @@ body {
 <span id="score" style="background-color:#f0f0f0"></span>
 </p>
 
-<div id="settings" style="position:fixed; display:none; width=100%; margin:10%; height=100%; border:3px solid black; top:0; left:0; right:0; bottom:0; background-color:#80a0f0; z-index:2">
+<div id="settings" style="position:fixed; display:none; margin-left:10%; margin-right:10%; margin-top:10%; height:50%; border:3px solid black; top:0; left:0; right:0; bottom:0; background-color:#80a0f0; z-index:2">
  <center>
  <table style="margin:5%">
   <tr>
    <td colspan="3"; style="text-align:center; font-weight:bold; text-decoration:underline"> Settings </td>
   <tr>
-   <td> Practice hard hands </td> <td>&nbsp;</td>
+   <td style="padding:12px"> Practice hard hands </td> <td>&nbsp;</td>
    <td> <input type="checkbox" id="settings_chk_hard"> </td>
   </tr>
   <tr>
-   <td> Practice soft hands </td> <td>&nbsp;</td>
+   <td style="padding:12px"> Practice soft hands </td> <td>&nbsp;</td>
    <td> <input type="checkbox" id="settings_chk_soft"> </td>
   </tr>
   <tr>
-   <td> Practice pairs </td> <td>&nbsp;</td>
+   <td style="padding:12px"> Practice pairs </td> <td>&nbsp;</td>
    <td> <input type="checkbox" id="settings_chk_pair"> </td>
   </tr>
   <tr style="text-align:center">
-   <td colspan="3">
-    <button type="button" onclick="click_settings()">Done</button>
+   <td colspan="3" style="padding:12px">
+    <button type="button" id="settings_done_btn" onclick="click_settings()">Done</button>
    </td>
   </tr>
  </table>
@@ -559,13 +559,18 @@ function resize() {
     button_size("double_btn", bw, bh);
     button_size("split_btn", bw, bh);
     button_size("new_hand_btn", bw*2, bh);
+    button_size("settings_btn", bw*.6, bh*.5);
+    button_size("settings_done_btn", bw*.6, bh*.5);
+    checkbox_size("settings_chk_hard", bh*.4);
+    checkbox_size("settings_chk_soft", bh*.4);
+    checkbox_size("settings_chk_pair", bh*.4);
     font_size("dealer_heading", fh);
     font_size("player_heading", fh);
-    font_size("title", fh*.8);
+    font_size("title", fh*.6);
     font_size("msg", fh*.8);
     font_size("score", fh*.6);
     font_size("sp1", fh*2);
-    font_size("settings", fh);
+    font_size("settings", fh*.6);
 }
 
 function font_size(name, fh) {
@@ -586,6 +591,13 @@ function button_size(name, w, h) {
     btn.style.fontSize = Math.floor(h*.75).toString() + "px";
     btn.style.borderRadius = Math.floor(h*.3) + "px";
     btn.style.border = "2px solid black";
+}
+
+function checkbox_size(name, s) {
+    const btn = el(name);
+    const size = Math.floor(s).toString() + "px";
+    btn.style.width = size;
+    btn.style.height = size;
 }
 
 function main() {
