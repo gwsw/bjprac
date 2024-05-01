@@ -32,8 +32,8 @@ body {
 </tr>
 
 <tr>
- <td> <img id="dealer1"> </td>
- <td> <img id="dealer2"> </td>
+ <td> <img id="dealer1" src="images/card_back.png"> </td>
+ <td> <img id="dealer2" src="images/card_back.png"> </td>
 </tr>
 
 <tr>
@@ -45,8 +45,8 @@ body {
 </tr>
 
 <tr>
- <td> <img id="player1"> </td>
- <td> <img id="player2"> </td>
+ <td> <img id="player1" src="images/card_back.png"> </td>
+ <td> <img id="player2" src="images/card_back.png"> </td>
 </tr>
 </table>
 </center>
@@ -360,6 +360,10 @@ class Game {
         this.set_score();
     }
     new_question() {
+        el("dealer1").src = _card_back;
+        el("dealer2").src = _card_back;
+        el("player1").src = _card_back;
+        el("player2").src = _card_back;
         for (;;) {
             this.hand_over();
             this.deck.shuffle();
