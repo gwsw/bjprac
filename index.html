@@ -342,8 +342,7 @@ class Deck {
         }
     }
     deal() {
-        const dealt = this.cards.splice(0, 1);
-        return dealt[0];
+        return this.cards.shift();
     }
     add_card(card) {
         this.cards.push(card);
@@ -360,7 +359,10 @@ class Game {
         this.correct_moves = 0;
         this.move_tbl = _move_tbl;
         this.enable_new_hand_btn(true);
-        this.prac = [ true, true, true, true ];
+        this.prac = [];
+        for (let prac_type = 0; prac_type < NUM_PRAC_TYPES; ++prac_type) {
+            this.prac.push(true);
+        }
         this.new_question();
         this.set_score();
     }
@@ -471,18 +473,6 @@ class Game {
             this.deck.add_card(cards.pop());
         }
     }
-    click_stand() {
-        this.click_move(STAND);
-    }
-    click_hit() {
-        this.click_move(HIT);
-    }
-    click_double() {
-        this.click_move(DOUBLE);
-    }
-    click_split() {
-        this.click_move(SPLIT);
-    }
     click_move(move) {
         const msg = this.move_msg(this.correct_move);
         if (move == this.correct_move) {
@@ -512,21 +502,18 @@ class Game {
         const pct = (tot_moves == 0) ? 0 : Math.floor(100 * this.correct_moves / tot_moves);
         el("score").innerHTML = "&nbsp;"+pct.toString()+"% : "+this.correct_moves.toString()+" correct, "+this.wrong_moves.toString()+" wrong&nbsp;";
     }
-    click_new_hand() {
-        this.new_question();
-    }
 }; // class Game
 
-function click_stand() { if (_game != null) { _game.click_stand(); } }
-function click_hit() { if (_game != null) { _game.click_hit(); } }
-function click_double() { if (_game != null) { _game.click_double(); } }
-function click_split() { if (_game != null) { _game.click_split(); } }
-function click_new_hand() { if (_game != null) { _game.click_new_hand(); } }
+function click_stand() { if (_game != null) { _game.click_move(STAND); } }
+function click_hit() { if (_game != null) { _game.click_move(HIT); } }
+function click_double() { if (_game != null) { _game.click_move(DOUBLE); } }
+function click_split() { if (_game != null) { _game.click_move(SPLIT); } }
+function click_new_hand() { if (_game != null) { _game.new_question(); } }
 
 // --------------------------------------------------------------------
 function click_settings() {
     const settings = el("settings");
-    if (settings.style.display != "none") {
+    if (settings.style.display != "none") { // close settings
         _game.prac[PRAC_HARD_D]  = el("settings_chk_hard_d").checked;
         _game.prac[PRAC_HARD_ND] = el("settings_chk_hard_nd").checked;
         _game.prac[PRAC_SOFT]    = el("settings_chk_soft").checked;
@@ -534,7 +521,7 @@ function click_settings() {
         if (!_game.prac[PRAC_HARD_D] && !_game.prac[PRAC_HARD_ND] && !_game.prac[PRAC_SOFT] && !_game.prac[PRAC_PAIR])
             _game.prac[PRAC_HARD] = true;
         settings.style.display = "none";
-    } else {
+    } else { // open settings
         el("settings_chk_hard_d").checked  = _game.prac[PRAC_HARD_D];
         el("settings_chk_hard_nd").checked = _game.prac[PRAC_HARD_ND];
         el("settings_chk_soft").checked    = _game.prac[PRAC_SOFT];
@@ -545,21 +532,8 @@ function click_settings() {
 
 // --------------------------------------------------------------------
 
-function now() {
-    return performance.now();
-}
-
 function el(name) {
     return document.getElementById(name);
-}
-
-function hex2(num) { return padnum(num, 2, 16); }
-
-function zmod(x, m) {
-    if (x >= 0) return x % m;
-    let r = (-x) % m;
-    if (r > 0) r = m - r;
-    return r;
 }
 
 function randu(n) {
