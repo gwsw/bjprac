@@ -51,11 +51,11 @@ body {
 </table>
 </center>
 
-<p>
+<div>
 <center>
  <span id="msg" style="">&nbsp;</span>
 </center>
-</p> 
+</div> 
 
 <center>
 <table>
@@ -90,8 +90,12 @@ body {
   <tr>
    <td colspan="3"; style="text-align:center; font-weight:bold; text-decoration:underline"> Settings </td>
   <tr>
-   <td style="padding:12px"> Practice hard hands </td> <td>&nbsp;</td>
-   <td> <input type="checkbox" id="settings_chk_hard"> </td>
+   <td style="padding:12px"> Practice hard hands <br> (non-doubling) </td> <td>&nbsp;</td>
+   <td> <input type="checkbox" id="settings_chk_hard_nd"> </td>
+  </tr>
+  <tr>
+   <td style="padding:12px"> Practice hard hands <br> (doubling) </td> <td>&nbsp;</td>
+   <td> <input type="checkbox" id="settings_chk_hard_d"> </td>
   </tr>
   <tr>
    <td style="padding:12px"> Practice soft hands </td> <td>&nbsp;</td>
@@ -135,10 +139,11 @@ var DOUBLE = 2;
 var SPLIT  = 3;
 var BJACK  = 4;
 
-var PRAC_HARD = 0;
-var PRAC_SOFT = 1;
-var PRAC_PAIR = 2;
-var NUM_PRACS = 3;
+var PRAC_HARD_D    = 0;
+var PRAC_HARD_ND   = 1;
+var PRAC_SOFT      = 2;
+var PRAC_PAIR      = 3;
+var NUM_PRAC_TYPES = 4;
 
 var _game = null;
 
@@ -355,26 +360,18 @@ class Game {
         this.correct_moves = 0;
         this.move_tbl = _move_tbl;
         this.enable_new_hand_btn(true);
-        this.prac = [ true, true, true ];
+        this.prac = [ true, true, true, true ];
         this.new_question();
         this.set_score();
     }
     new_question() {
+        this.hand_over();
         el("dealer1").src = _card_back;
         el("dealer2").src = _card_back;
         el("player1").src = _card_back;
         el("player2").src = _card_back;
-        for (;;) {
-            this.hand_over();
-            this.deck.shuffle();
-            this.dealer_cards.push(this.deck.deal());
-            this.player_cards.push(this.deck.deal());
-            if (!this.prac[PRAC_SOFT] && this.player_cards[0].get_value() == 1)
-                continue;
-            this.player_cards.push(this.deal_final());
-            this.correct_move = this.lookup_move();
-            if (this.correct_move != BJACK) break;
-        }
+        this.deal_hand();
+        this.correct_move = this.lookup_move();
         el("dealer1").src = this.dealer_cards[0].image;
         el("dealer2").src = _card_back;
         el("player1").src = this.player_cards[0].image;
@@ -383,35 +380,60 @@ class Game {
         //this.enable_new_hand_btn(false);
         this.msg("&nbsp;<br>Select a move...");
     }
+    deal_hand() {
+        for (;;) {
+            this.deck.shuffle();
+            const prac_type = this.random_prac_type();
+            const card1 = this.deck.deal();
+            const card2 = this.deck.deal();
+            if (this.player_hand_ok(prac_type, card1, card2)) {
+                this.player_cards.push(card1);
+                this.player_cards.push(card2);
+                break;
+            }
+            this.deck.add_card(card1);
+            this.deck.add_card(card2);
+        }
+        this.dealer_cards.push(this.deck.deal());
+    }
+    random_prac_type() {
+        let num_pracs = 0;
+        for (let prac_type = 0; prac_type < NUM_PRAC_TYPES; ++prac_type) {
+            if (this.prac[prac_type]) ++num_pracs;
+        }
+        let rp = randu(num_pracs);
+        for (let prac_type = 0; prac_type < NUM_PRAC_TYPES; ++prac_type) {
+            if (this.prac[prac_type]) {
+                if (rp-- == 0) return prac_type;
+            }
+        }
+        return undefined; // cannot happen
+    }
+    player_hand_ok(prac_type, card1, card2) {
+        if (card1.get_value() == 1 && card2.get_value() == 10)
+            return false;
+        if (card1.get_value() == 10 && card2.get_value() == 1)
+            return false;
+        const soft = (card1.get_value() == 1 || card2.get_value() == 1);
+        const pair = (card1.get_value() == card2.get_value());
+        const total = (card1.get_value() + card2.get_value());
+        const double = (total >= 9 && total <= 11);
+        if (prac_type == PRAC_SOFT && !soft)
+            return false;
+        if (prac_type == PRAC_PAIR && !pair)
+            return false;
+        if (prac_type == PRAC_HARD_D && (!double || soft || pair))
+            return false;
+        if (prac_type == PRAC_HARD_ND && (double || soft || pair))
+            return false;
+        return true;
+    }
     lookup_move() {
         const p1 = this.player_cards[0].get_value()-1;
         const p2 = this.player_cards[1].get_value()-1;
         const px = p1*10 + p2;
         const dx = this.dealer_cards[0].get_value()-1; 
         return this.move_tbl[px][dx];
-    }
-    deal_final() {
-        const pracs = (this.prac[PRAC_HARD] ? 1 : 0) + (this.prac[PRAC_SOFT] ? 1 : 0) + (this.prac[PRAC_PAIR] ? 1 : 0);
-        for (;;) {
-            let rp = randu(pracs);
-            let prac_type;
-            for (prac_type = 0; prac_type < 3; ++prac_type) {
-                if (this.prac[prac_type]) {
-                    if (rp-- == 0) break;
-                }
-            }
-            const dcard = this.player_cards[0];
-            const card = this.deck.deal();
-            const soft = (card.get_value() == 1 || dcard.get_value() == 1);
-            const pair = (card.get_value() == dcard.get_value());
-            if (prac_type == PRAC_HARD && !soft && !pair)
-                return card;
-            if (prac_type == PRAC_SOFT && soft)
-                return card;
-            if (prac_type == PRAC_PAIR && pair && randu(2) == 0)
-                return card;
-            this.deck.add_card(card);
-        }
     }
     msg(text) {
         el("msg").innerHTML = "&nbsp;<br>" + text;
@@ -481,6 +503,8 @@ class Game {
             return { text: "DOUBLE", color: config.color_double };
         } else if (this.correct_move == SPLIT) {
             return { text: "SPLIT",  color: config.color_split };
+        } else {
+            return { text: "!!!ERROR!!!",  color: config.color_stand };
         }
     }
     set_score() {
@@ -503,16 +527,18 @@ function click_new_hand() { if (_game != null) { _game.click_new_hand(); } }
 function click_settings() {
     const settings = el("settings");
     if (settings.style.display != "none") {
-        _game.prac[PRAC_HARD] = el("settings_chk_hard").checked;
-        _game.prac[PRAC_SOFT] = el("settings_chk_soft").checked;
-        _game.prac[PRAC_PAIR] = el("settings_chk_pair").checked;
-        if (!_game.prac[PRAC_HARD] && !_game.prac[PRAC_SOFT] && !_game.prac[PRAC_PAIR])
+        _game.prac[PRAC_HARD_D]  = el("settings_chk_hard_d").checked;
+        _game.prac[PRAC_HARD_ND] = el("settings_chk_hard_nd").checked;
+        _game.prac[PRAC_SOFT]    = el("settings_chk_soft").checked;
+        _game.prac[PRAC_PAIR]    = el("settings_chk_pair").checked;
+        if (!_game.prac[PRAC_HARD_D] && !_game.prac[PRAC_HARD_ND] && !_game.prac[PRAC_SOFT] && !_game.prac[PRAC_PAIR])
             _game.prac[PRAC_HARD] = true;
         settings.style.display = "none";
     } else {
-        el("settings_chk_hard").checked = _game.prac[PRAC_HARD];
-        el("settings_chk_soft").checked = _game.prac[PRAC_SOFT];
-        el("settings_chk_pair").checked = _game.prac[PRAC_PAIR];
+        el("settings_chk_hard_d").checked  = _game.prac[PRAC_HARD_D];
+        el("settings_chk_hard_nd").checked = _game.prac[PRAC_HARD_ND];
+        el("settings_chk_soft").checked    = _game.prac[PRAC_SOFT];
+        el("settings_chk_pair").checked    = _game.prac[PRAC_PAIR];
         settings.style.display = "block";
     }
 }
@@ -545,11 +571,11 @@ function resize() {
     const s = 20;
     const ww = window.innerWidth - s;
     const wh = window.innerHeight - s;
-    const ch = wh * .16;
+    const ch = wh * .12;
     const cw = ch / hfrac;
     const bw = cw * 1.5;
-    const bh = bw * .30;
-    const fh = wh * .03;
+    const bh = bw * .27;
+    const fh = wh * .025;
     image_size("dealer1", cw, ch);
     image_size("dealer2", cw, ch);
     image_size("player1", cw, ch);
@@ -561,7 +587,8 @@ function resize() {
     button_size("new_hand_btn", bw*2, bh);
     button_size("settings_btn", bw*.6, bh*.5);
     button_size("settings_done_btn", bw*.6, bh*.5);
-    checkbox_size("settings_chk_hard", bh*.4);
+    checkbox_size("settings_chk_hard_d", bh*.4);
+    checkbox_size("settings_chk_hard_nd", bh*.4);
     checkbox_size("settings_chk_soft", bh*.4);
     checkbox_size("settings_chk_pair", bh*.4);
     font_size("dealer_heading", fh);
@@ -588,7 +615,7 @@ function button_size(name, w, h) {
     const btn = el(name);
     btn.style.width = Math.floor(w).toString() + "px";
     btn.style.height = Math.floor(h).toString() + "px";
-    btn.style.fontSize = Math.floor(h*.75).toString() + "px";
+    btn.style.fontSize = Math.floor(h*.6).toString() + "px";
     btn.style.borderRadius = Math.floor(h*.3) + "px";
     btn.style.border = "2px solid black";
 }
