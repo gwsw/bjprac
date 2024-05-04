@@ -133,6 +133,9 @@ var config = {
     color_wrong           : "#ff0000",
 };
 
+var NUM_RANKS  = 13;
+var NUM_SUITS  = 4;
+
 var STAND  = 0;
 var HIT    = 1;
 var DOUBLE = 2;
@@ -315,7 +318,7 @@ class Card {
     constructor(rank, suit) {
         this.rank = rank;
         this.suit = suit;
-        this.image = "images/" + _card_images[(suit * 13) + rank];
+        this.image = "images/" + _card_images[(suit * NUM_RANKS) + rank];
     }
     get_value() {
         return (this.rank < 10) ? this.rank+1 : 10;
@@ -326,8 +329,8 @@ class Card {
 class Deck {
     constructor() {
         this.cards = [];
-        for (let rank = 0; rank < 13; ++rank) {
-            for (let suit = 0; suit < 4; ++suit) {
+        for (let rank = 0; rank < NUM_RANKS; ++rank) {
+            for (let suit = 0; suit < NUM_SUITS; ++suit) {
                 this.cards.push(new Card(rank, suit));
             }
         }
@@ -412,13 +415,15 @@ class Game {
         return undefined; // cannot happen
     }
     player_hand_ok(prac_type, card1, card2) {
-        if (card1.get_value() == 1 && card2.get_value() == 10)
+        const c1 = card1.get_value();
+        const c2 = card2.get_value();
+        if (c1 == 1 && c2 == 10)
             return false;
-        if (card1.get_value() == 10 && card2.get_value() == 1)
+        if (c1 == 10 && c2 == 1)
             return false;
-        const soft = (card1.get_value() == 1 || card2.get_value() == 1);
-        const pair = (card1.get_value() == card2.get_value());
-        const total = (card1.get_value() + card2.get_value());
+        const soft = (c1 == 1 || c2 == 1);
+        const pair = (c1 == c2);
+        const total = (c1 + c2);
         const double = (total >= 9 && total <= 11);
         if (prac_type == PRAC_SOFT && !soft)
             return false;
@@ -427,6 +432,8 @@ class Game {
         if (prac_type == PRAC_HARD_D && (!double || soft || pair))
             return false;
         if (prac_type == PRAC_HARD_ND && (double || soft || pair))
+            return false;
+        if (c1 == 10 && c2 == 10 && randu(2) == 0)
             return false;
         return true;
     }
