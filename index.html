@@ -52,9 +52,18 @@ body {
 </center>
 
 <div>
-<center>
- <span id="msg" style="">&nbsp;</span>
-</center>
+<table width="100%">
+<tr>
+ <td width="10%"> &nbsp; </td>
+ <td width="80%">
+  <center> <span id="msg" style="">&nbsp;</span> </center>
+ </td>
+ <td width="10%">
+  <div id="strat_btn" style="">
+   <button type="button" onclick="click_strat()"> Show<br>strategy </button>
+  </div>
+ </td>
+</tr>
 </div> 
 
 <center>
@@ -216,8 +225,8 @@ var _move_tbl = [
     /* A3 */ [ HIT,    HIT,    HIT,    HIT,    DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
     /* A4 */ [ HIT,    HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
     /* A5 */ [ HIT,    HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
-    /* A6 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
-    /* A7 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, STAND,  STAND,  HIT,    HIT    ], 
+    /* A6 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* A7 */ [ HIT,    STAND,  DOUBLE, DOUBLE, DOUBLE, DOUBLE, STAND,  STAND,  HIT,    HIT    ], 
     /* A8 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
     /* A9 */ [ STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND,  STAND  ], 
     /* AT */ [ BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK,  BJACK  ], 
@@ -377,6 +386,7 @@ class Game {
         el("player2").src = _card_back;
         this.deal_hand();
         this.correct_move = this.lookup_move();
+        this.strat_msg = Game.strategy_msg(this.player_cards[0], this.player_cards[1]);
         el("dealer1").src = this.dealer_cards[0].image;
         el("dealer2").src = _card_back;
         el("player1").src = this.player_cards[0].image;
@@ -509,6 +519,39 @@ class Game {
         const pct = (tot_moves == 0) ? 0 : Math.floor(100 * this.correct_moves / tot_moves);
         el("score").innerHTML = "&nbsp;"+pct.toString()+"% : "+this.correct_moves.toString()+" correct, "+this.wrong_moves.toString()+" wrong&nbsp;";
     }
+    click_strat() {
+        if (this.strat_msg != null)
+            this.msg(this.strat_msg);
+    }
+    static strategy_msg(card1, card2) {
+        let c1 = card1.get_value();
+        let c2 = card2.get_value();
+        if (c1 == c2) {
+            switch (c2) {
+            case 1: case 8: return "Always split AA and 88";
+            case 2: case 3: case 7: return "Split 22,33,77 vs. 2-7";
+            case 4: return "Split 44 vs. 5-6";
+            case 5: case 10: return "Never split 55 or 10s";
+            case 6: return "Split 66 vs. 2-6";
+            case 9: return "Split 99 vs. 2-9<br>(except 7)";
+            }
+        }
+        if (c1 > c2) [c1,c2] = [c2,c1];
+        if (c1 == 1) {
+            switch (c2) {
+            case 2: case 3: return "Double A2,A3 vs. 5-6";
+            case 4: case 5: return "Double A4,A5 vs. 4-6";
+            case 6: case 7: return "Double A6,A7 vs. 3-6<br>(A7 hit only 9-A)";
+            case 8: case 9: return "Always stand A8 and A9";
+            }
+        }
+        switch (c1+c2) {
+        case 9: return "Double 9 vs. 3-6";
+        case 10: return "Double 10 vs. 2-9<br>(any except 10-A)";
+        case 11: return "Double 11 vs. 2-10<br>(any except A)";
+        default: return "Hit 12-16 vs 7-A<br>(Also hit 12 vs 2-3)";
+        }
+    }
 }; // class Game
 
 function click_stand() { if (_game != null) { _game.click_move(STAND); } }
@@ -516,6 +559,7 @@ function click_hit() { if (_game != null) { _game.click_move(HIT); } }
 function click_double() { if (_game != null) { _game.click_move(DOUBLE); } }
 function click_split() { if (_game != null) { _game.click_move(SPLIT); } }
 function click_new_hand() { if (_game != null) { _game.new_question(); } }
+function click_strat() { if (_game != null) { _game.click_strat(); } }
 
 // --------------------------------------------------------------------
 function click_settings() {
