@@ -59,7 +59,7 @@ body {
   <center> <span id="msg" style="">&nbsp;</span> </center>
  </td>
  <td width="10%">
-  <div id="strat_btn" style="">
+  <div id="strat_div">
    <button type="button" onclick="click_strat()"> Show<br>strategy </button>
   </div>
  </td>
@@ -271,7 +271,7 @@ var _move_tbl = [
     /* 58 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
     /* 59 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
     /* 5T */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
-    /* 6A */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
+    /* 6A */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
     /* 62 */ [ HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT,    HIT    ], 
     /* 63 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
     /* 64 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT    ], 
@@ -281,7 +281,7 @@ var _move_tbl = [
     /* 68 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
     /* 69 */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
     /* 6T */ [ HIT,    STAND,  STAND,  STAND,  STAND,  STAND,  HIT,    HIT,    HIT,    HIT    ], 
-    /* 7A */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, STAND,  STAND,  HIT,    HIT    ], 
+    /* 7A */ [ HIT,    STAND,  DOUBLE, DOUBLE, DOUBLE, DOUBLE, STAND,  STAND,  HIT,    HIT    ], 
     /* 72 */ [ HIT,    HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT,    HIT,    HIT,    HIT    ], 
     /* 73 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, HIT    ], 
     /* 74 */ [ HIT,    DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE ], 
@@ -555,12 +555,12 @@ class Game {
     }
 }; // class Game
 
-function click_stand() { if (_game != null) { _game.click_move(STAND); } }
-function click_hit() { if (_game != null) { _game.click_move(HIT); } }
-function click_double() { if (_game != null) { _game.click_move(DOUBLE); } }
-function click_split() { if (_game != null) { _game.click_move(SPLIT); } }
-function click_new_hand() { if (_game != null) { _game.new_question(); } }
-function click_strat() { if (_game != null) { _game.click_strat(); } }
+function click_stand()    { if (_game != null) _game.click_move(STAND); }
+function click_hit()      { if (_game != null) _game.click_move(HIT); }
+function click_double()   { if (_game != null) _game.click_move(DOUBLE); }
+function click_split()    { if (_game != null) _game.click_move(SPLIT); }
+function click_new_hand() { if (_game != null) _game.new_question(); }
+function click_strat()    { if (_game != null) _game.click_strat(); }
 
 // --------------------------------------------------------------------
 function click_settings() {
