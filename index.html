@@ -117,6 +117,11 @@ body {
   </tr>
   <tr style="text-align:center">
    <td colspan="3" style="padding:12px">
+     <button type="button" id="reset_score_btn" onclick="click_reset_score()">Reset score</button>
+   </td>
+  </tr>
+  <tr style="text-align:center">
+   <td colspan="3" style="padding:12px">
     <button type="button" id="settings_done_btn" onclick="click_settings()">Done</button>
    </td>
   </tr>
@@ -376,6 +381,7 @@ class Game {
         for (let prac_type = 0; prac_type < NUM_PRAC_TYPES; ++prac_type) {
             this.prac.push(true);
         }
+        this.load_cookies();
         this.new_question();
         this.set_score();
     }
@@ -500,6 +506,7 @@ class Game {
             this.wrong_moves++;
             this.msg('<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br><span style="background-color:'+config.color_msg+'">&nbsp;The correct move is </span><span style="background-color:'+config.color_msg+';color:'+msg.color+'">'+msg.text+'.&nbsp;</span>');
         }
+        this.save_cookies();
         this.hand_over();
     }
     move_msg(move) {
@@ -519,6 +526,35 @@ class Game {
         const tot_moves = this.correct_moves + this.wrong_moves;
         const pct = (tot_moves == 0) ? 0 : Math.floor(100 * this.correct_moves / tot_moves);
         el("score").innerHTML = "&nbsp;"+pct.toString()+"% : "+this.correct_moves.toString()+" correct, "+this.wrong_moves.toString()+" wrong&nbsp;";
+    }
+    click_reset_score() {
+        this.correct_moves = this.wrong_moves = 0;
+        this.set_score();
+        this.save_cookies();
+    }
+    save_cookies() {
+        Game.save_cookie_obj("correct", this.correct_moves);
+        Game.save_cookie_obj("wrong", this.wrong_moves);
+    }
+    static save_cookie_obj(obj_name, obj) {
+        let cs = obj_name + '=' + JSON.stringify(obj);
+        document.cookie = cs;
+    }
+    load_cookies() {
+        for (const nev of document.cookie.split(';')) {
+            let start = 0;
+            while (nev.substr(start,1) == " ")
+                ++start;
+            const eq = nev.indexOf('=');
+            if (eq <= 0) continue;
+            const varname = nev.substr(start, eq-start);
+            const value = nev.substr(eq+1);
+            if (varname == "correct") {
+                this.correct_moves = parseInt(value);
+            } else if (varname == "wrong") {
+                this.wrong_moves = parseInt(value);
+            }
+        }
     }
     click_strat() {
         if (this.strat_msg != null)
@@ -558,12 +594,13 @@ class Game {
     }
 }; // class Game
 
-function click_stand()    { if (_game != null) _game.click_move(STAND); }
-function click_hit()      { if (_game != null) _game.click_move(HIT); }
-function click_double()   { if (_game != null) _game.click_move(DOUBLE); }
-function click_split()    { if (_game != null) _game.click_move(SPLIT); }
-function click_new_hand() { if (_game != null) _game.new_question(); }
-function click_strat()    { if (_game != null) _game.click_strat(); }
+function click_stand()       { if (_game != null) _game.click_move(STAND); }
+function click_hit()         { if (_game != null) _game.click_move(HIT); }
+function click_double()      { if (_game != null) _game.click_move(DOUBLE); }
+function click_split()       { if (_game != null) _game.click_move(SPLIT); }
+function click_new_hand()    { if (_game != null) _game.new_question(); }
+function click_strat()       { if (_game != null) _game.click_strat(); }
+function click_reset_score() { if (_game != null) _game.click_reset_score(); }
 
 // --------------------------------------------------------------------
 function click_settings() {
