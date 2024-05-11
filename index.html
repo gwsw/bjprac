@@ -512,7 +512,7 @@ class Game {
         } else if (this.correct_move == SPLIT) {
             return { text: "SPLIT",  color: config.color_split };
         } else {
-            return { text: "!!!ERROR!!!",  color: config.color_stand };
+            return { text: "!!!ERROR!!!",  color: config.color_wrong };
         }
     }
     set_score() {
@@ -546,11 +546,14 @@ class Game {
             case 8: case 9: return "Always stand A8 and A9<br>&nbsp;";
             }
         }
-        switch (c1+c2) {
+        const total = c1 + c2;
+        switch (total) {
         case 9: return "Double 9 vs. 3-6<br>&nbsp;";
         case 10: return "Double 10 vs. 2-9<br>(any except 10-A)";
         case 11: return "Double 11 vs. 2-10<br>(any except A)";
-        default: return "Hit 12-16 vs. 7-A<br>(Also hit 12 vs. 2-3)";
+        default: 
+            if (total < 9) return "Always hit 3-8";
+            return "Hit 12-16 vs. 7-A<br>(Also hit 12 vs. 2-3)";
         }
     }
 }; // class Game
