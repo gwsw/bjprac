@@ -90,8 +90,10 @@ body {
 
 <p>&nbsp;</p>
 <hr style="height:2px">
-<p style="text-align:right">
+<p>
 <span id="score" style="background-color:#f0f0f0"></span>
+&nbsp; &nbsp;
+<span style="background-color:#f0f0f0"><a href="hist.html">Score history</a></span>
 </p>
 
 <div id="settings" style="position:fixed; display:none; margin-left:10%; margin-right:10%; margin-top:10%; height:50%; border:3px solid black; top:0; left:0; right:0; bottom:0; background-color:#80a0f0; z-index:2">
@@ -533,14 +535,15 @@ class Game {
         this.save_cookies();
     }
     save_cookies() {
-        Game.save_cookie_obj("correct", this.correct_moves);
-        Game.save_cookie_obj("wrong", this.wrong_moves);
+        const date = today();
+        Game.save_cookie("score_" + date, this.correct_moves.toString() + "/" + this.wrong_moves.toString());
     }
-    static save_cookie_obj(obj_name, obj) {
-        let cs = obj_name + '=' + JSON.stringify(obj);
+    static save_cookie(name, val) {
+        let cs = name + '=' + val;
         document.cookie = cs;
     }
     load_cookies() {
+        const cname = "score_" + today();
         for (const nev of document.cookie.split(';')) {
             let start = 0;
             while (nev.substr(start,1) == " ")
@@ -549,10 +552,12 @@ class Game {
             if (eq <= 0) continue;
             const varname = nev.substr(start, eq-start);
             const value = nev.substr(eq+1);
-            if (varname == "correct") {
-                this.correct_moves = parseInt(value);
-            } else if (varname == "wrong") {
-                this.wrong_moves = parseInt(value);
+            if (varname == cname) {
+                const vals = value.split('/');
+                if (vals.length == 2) {
+                    this.correct_moves = parseInt(vals[0]);
+                    this.wrong_moves = parseInt(vals[1]);
+                }
             }
         }
     }
@@ -623,6 +628,11 @@ function click_settings() {
 }
 
 // --------------------------------------------------------------------
+
+function today() {
+    const date = new Date();
+    return date.getFullYear().toString() + "-" + (date.getMonth()+1).toString() + "-" + date.getDate().toString();
+}
 
 function el(name) {
     return document.getElementById(name);
