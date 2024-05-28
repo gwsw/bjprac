@@ -23,7 +23,7 @@ body {
 <table style="width:100%">
  <tr>
   <td style="width:25%">
-  <td id="title" style="width:50%; text-align:center"> &nbsp;<br> Cindy's Blackjack </td> 
+  <td id="title" style="width:50%; text-align:center"> &nbsp;<br> <span style="text-decoration:underline">Cindy's Blackjack </span> </td> 
   <td style="width:25%; text-align:right"> <button type="button" id="settings_btn" onclick="click_settings()"> Settings </button> </td>
  </tr>
 </table>
@@ -63,7 +63,7 @@ body {
   <center> <span id="msg" style="">&nbsp;</span> </center>
  </td>
  <td width="10%">
-  <div id="strat_div">
+  <div id="strat_div" style="float:right">
    <button type="button" id="strat_btn" onclick="click_strat()"> Strategy </button>
   </div>
  </td>
@@ -139,7 +139,7 @@ body {
    </td>
   </tr>
   <tr>
-   <td colspan="3"; style="text-align:right"> v1.3 </td>
+   <td colspan="3"; style="text-align:right"> v1.4 </td>
   </tr>
  </table>
  </center>
@@ -400,10 +400,10 @@ class Game {
             this.prac.push(true);
         }
         this.load_cookies();
-        this.new_question();
+        this.new_hand();
         this.set_score();
     }
-    new_question() {
+    new_hand() {
         this.hand_over();
         el("dealer1").src = _card_back;
         el("dealer2").src = _card_back;
@@ -627,7 +627,7 @@ function click_stand()       { if (_game != null) _game.click_move(STAND); }
 function click_hit()         { if (_game != null) _game.click_move(HIT); }
 function click_double()      { if (_game != null) _game.click_move(DOUBLE); }
 function click_split()       { if (_game != null) _game.click_move(SPLIT); }
-function click_new_hand()    { if (_game != null) _game.new_question(); }
+function click_new_hand()    { if (_game != null) _game.new_hand(); }
 function click_strat()       { if (_game != null) _game.click_strat(); }
 function click_reset_score() { if (_game != null) _game.click_reset_score(); }
 
