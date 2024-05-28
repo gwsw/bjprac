@@ -157,11 +157,12 @@ var config = {
     color_correct         : "#c0ffc0",
     color_double          : "#0090f0",
     color_hit             : "#009030",
-    color_msg             : "#f0f0f0",
+    color_msg             : "#10e070",
     color_new_hand        : "#000000",
     color_split           : "#b06810",
     color_stand           : "#d00000",
     color_wrong           : "#ff0000",
+    color_xxx             : "#f0f0f0",
 };
 
 var NUM_RANKS  = 13;
@@ -485,6 +486,8 @@ class Game {
     msg(text) {
         this.dmsg(text);
         this.disp_msg = text;
+        this.showing_strat_msg = false;
+        el("strat_btn").style.backgroundColor = ""; ///YUCCKK
     }
     hand_over() {
         this.enable_answer_btns(false);
@@ -523,10 +526,10 @@ class Game {
         const msg = this.move_msg(this.correct_move);
         if (move == this.correct_move) {
             this.correct_moves++;
-            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="background-color:'+config.color_msg+';color:'+msg.color+'">&nbsp;'+msg.text+'</span><span style="background-color:'+config.color_msg+'"> is correct.&nbsp;</span>');
+            this.msg('<span style="background-color:'+config.color_correct+'">&nbsp;Correct!&nbsp;</span><br><span style="background-color:'+config.color_xxx+';color:'+msg.color+'">&nbsp;'+msg.text+'&nbsp;</span><span style="background-color:'+config.color_msg+'"> is correct.&nbsp;</span>');
         } else {
             this.wrong_moves++;
-            this.msg('<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br><span style="background-color:'+config.color_msg+'">&nbsp;The correct move is </span><span style="background-color:'+config.color_msg+';color:'+msg.color+'">'+msg.text+'.&nbsp;</span>');
+            this.msg('<span style="background-color:'+config.color_wrong+';color:#ffffff">&nbsp;Wrong.&nbsp;</span><br><span style="background-color:'+config.color_msg+'">&nbsp;The correct move is </span><span style="background-color:'+config.color_xxx+';color:'+msg.color+'">'+"&nbsp;"+msg.text+'.&nbsp;</span>');
         }
         this.save_cookies();
         this.hand_over();
