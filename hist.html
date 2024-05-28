@@ -27,8 +27,8 @@ function main() {
         if (eq <= 0) continue;
         const varname = nev.substr(start, eq-start);
         const value = nev.substr(eq+1);
-        if (varname.substr(0,6) == "score_") {
-            const date = varname.substr(11);
+        if (varname.substr(0,7) == "score2_") {
+            const date = varname.substr(12);
             const vals = value.split('/');
             const correct = parseInt(vals[0]);
             const wrong = parseInt(vals[1]);

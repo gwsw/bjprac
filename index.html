@@ -559,14 +559,14 @@ class Game {
     }
     save_cookies() {
         const date = today();
-        Game.save_cookie("score_" + date, this.correct_moves.toString() + "/" + this.wrong_moves.toString());
+        Game.save_cookie("score2_" + date, this.correct_moves.toString() + "/" + this.wrong_moves.toString());
     }
     static save_cookie(name, val) {
         let cs = name + '=' + val + ";max-age=31536000";
         document.cookie = cs;
     }
     load_cookies() {
-        const cname = "score_" + today();
+        const cname = "score2_" + today();
         for (const nev of document.cookie.split(';')) {
             let start = 0;
             while (nev.substr(start,1) == " ")
@@ -658,7 +658,13 @@ function click_settings() {
 
 function today() {
     const date = new Date();
-    return date.getFullYear().toString() + "-" + (date.getMonth()+1).toString() + "-" + date.getDate().toString();
+    return date.getFullYear().toString() + "-" + string2(date.getMonth()+1) + "-" + string2(date.getDate());
+}
+
+function string2(n) {
+    let s = n.toString();
+    if (s.length < 2) s = "0" + s;
+    return s;
 }
 
 function el(name) {
@@ -698,7 +704,7 @@ function resize() {
     font_size("dealer_heading", fh);
     font_size("player_heading", fh);
     font_size("title", fh*.6);
-    font_size("msg", fh*.8);
+    font_size("msg", fh*.7);
     font_size("score", fh*.6);
     font_size("score_hist", fh*.6);
     font_size("chart", fh*.6);
