@@ -398,7 +398,7 @@ class Game {
         this.enable_new_hand_btn(true);
         this.prac = [];
         for (let prac_type = 0; prac_type < NUM_PRAC_TYPES; ++prac_type) {
-            this.prac.push(true);
+            this.prac.push(prac_type != 1);
         }
         this.load_cookies();
         this.new_hand();
