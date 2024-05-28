@@ -139,7 +139,7 @@ body {
    </td>
   </tr>
   <tr>
-   <td colspan="3"; style="text-align:right"> v1.5 </td>
+   <td colspan="3"; style="text-align:right"> v1.6 </td>
   </tr>
  </table>
  </center>
@@ -562,7 +562,7 @@ class Game {
         Game.save_cookie("score_" + date, this.correct_moves.toString() + "/" + this.wrong_moves.toString());
     }
     static save_cookie(name, val) {
-        let cs = name + '=' + val;
+        let cs = name + '=' + val + ";max-age=31536000";
         document.cookie = cs;
     }
     load_cookies() {
