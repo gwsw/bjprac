@@ -8,16 +8,17 @@
 <body style="background-color:#f0f0f0" onload="main()">
 
 <h2><center>Cindy's Blackjack Scores</center></h2>
+<hr>
 
-<table id="scores" style="width:100%">
-<tr style="text-align:left"> <th>Date</th> <th>Percent correct</th> <th>Correct</th> <th>Wrong</th> </tr>
+<table id="scores" style="width:100%; margin:5%; font-size:3.5vw">
+<tr style="text-align:left"> <th>Date</th> <th>Percent<br>correct</th> <th>Correct</th> <th>Wrong</th> </tr>
+<tr><td> &nbsp; </td></tr>
 </table>
 
 <script>
 
 function main() {
     const tbl = el("scores");
-    let rows = 1;
     for (const nev of document.cookie.split(';')) {
         let start = 0;
         while (nev.substr(start,1) == " ")
@@ -27,12 +28,12 @@ function main() {
         const varname = nev.substr(start, eq-start);
         const value = nev.substr(eq+1);
         if (varname.substr(0,6) == "score_") {
-            const date = varname.substr(6);
+            const date = varname.substr(11);
             const vals = value.split('/');
             const correct = parseInt(vals[0]);
             const wrong = parseInt(vals[1]);
             const pct = (correct + wrong == 0) ? 0 : (100 * correct) / (correct + wrong);
-            const row = scores.insertRow(rows++);
+            const row = scores.insertRow(1);
             row.insertCell(0).innerHTML = date;
             row.insertCell(1).innerHTML = Math.floor(pct).toString() + "%";
             row.insertCell(2).innerHTML = vals[0];
